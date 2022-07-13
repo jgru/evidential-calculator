@@ -1,0 +1,3 @@
+[submodule "deps/pynusmv"]
+	path = deps/pynusmv
+	url = https://github.com/LouvainVerificationLab/pynusmv.git
