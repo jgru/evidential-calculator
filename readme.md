@@ -1,3 +1,4 @@
+# Evidential Calculator
 
 This repository contains a prototypical implementation of a tool that calculates the evidence sets of different classes of evidence.
 
@@ -9,7 +10,7 @@ This repository contains a prototypical implementation of a tool that calculates
 
 <a id="org824e92e"></a>
 
-# Dependencies
+## Dependencies
 
 The code in this depends on [PyNuSMV](https://github.com/LouvainVerificationLab/pynusmv), which is included as a submodule. In order to compile it, ensure that you have the following prerequisites installed.
 
@@ -29,7 +30,7 @@ pip3 install -r requirements.txt
 
 <a id="org1a97ec1"></a>
 
-# Installation
+## Installation
 
 In case you want to install the module named `evidential_calculator`, you could run
 
@@ -42,7 +43,7 @@ which will install the module as well as the script `calc_evidence`.
 
 <a id="org47135c5"></a>
 
-# Usage
+## Usage
 
 Using the provided tool is straightforward, just supply a model, which is defined in NuSMV's input specification language either by piping it into `stdin` or as a positional argument. In addition to that, specify the class of evidence that should be calculated via `-t` (either "sufficient" or "necessary" evidence).
 
@@ -59,12 +60,12 @@ python3 calc_evidence.py -a "add_job_b" -t "sufficient" ../../examples/acme-mode
 
 For a full reference of the CLI, see the manual page below, or run `calc_evidence.py` with `--help`.
 
-    
+
     usage: calc_evidence.py [-h] [-a ACTION] [-t {sufficient,necessary}] [-o {org,csv,raw}] [model]
-    
+
     positional arguments:
       model                 Model specified in NuSMV's input language
-    
+
     optional arguments:
       -h, --help            show this help message and exit
       -a ACTION, --action ACTION
