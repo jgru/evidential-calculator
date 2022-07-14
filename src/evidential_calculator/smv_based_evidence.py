@@ -1,7 +1,5 @@
 import copy
-import logging
 import time
-from collections import defaultdict
 from collections.abc import Callable
 from enum import Enum
 from functools import partial
@@ -119,24 +117,6 @@ class NuSMVEvidenceProcessor:
         else:
             raise NotImplemented("Action-induced evicence not implemented yet")
 
-    @staticmethod
-    def powerset(set_):
-        """
-        Constructs a powerset, like so
-        powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)
-
-        Taken from
-        http://jim-holmstroem.github.io/python/itertools/2014/09/28/powerset-powerdict.html
-
-        """
-        return chain.from_iterable(
-            map(partial(combinations, set_), range(len(set_) + 1))
-        )
-
-    @staticmethod
-    def powerdict(dict_):
-        return map(dict, NuSMVEvidenceProcessor.powerset(dict_.items()))
-
     def calc_set(
         self,
         action: pn.model.Identifier,
@@ -164,14 +144,14 @@ class NuSMVEvidenceProcessor:
             for var, valuation in var_dict.items():
                 for d in [{var: val} for val in valuation.values]:
                     if check_func(action, d):
-                        ((var, val),) = d.items()
-                        result.append((var, val))
+                        # ((var, val),) = d.items()
+                        result.append(d)
 
             results[str(action)] = result
         return results
 
     def calc_set_compound(self, actions: list[pn.model.Identifier]):
-        results = defaultdict(list)
+        results = {}
         _vars = self.get_model_vars()
 
         for action in actions:
@@ -187,7 +167,6 @@ class NuSMVEvidenceProcessor:
                 result = []
 
                 for c in combos:
-                    print(c)
                     if self.check_sufficient_trace(action, c):
                         result.append(c)
             results[str(action)] = result
@@ -238,3 +217,21 @@ class NuSMVEvidenceProcessor:
         is_unreachable = pn.mc.check_ltl_spec(spec)
 
         return releases and not is_unreachable
+
+    @staticmethod
+    def powerset(set_):
+        """
+        Constructs a powerset, like so
+        powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)
+
+        Taken from
+        http://jim-holmstroem.github.io/python/itertools/2014/09/28/powerset-powerdict.html
+
+        """
+        return chain.from_iterable(
+            map(partial(combinations, set_), range(len(set_) + 1))
+        )
+
+    @staticmethod
+    def powerdict(dict_):
+        return map(dict, NuSMVEvidenceProcessor.powerset(dict_.items()))
