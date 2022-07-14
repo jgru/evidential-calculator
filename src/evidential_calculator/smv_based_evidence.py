@@ -126,9 +126,9 @@ class NuSMVEvidenceProcessor:
         var_dict = self.get_model_vars()
 
         results = {}
-        result = []
 
         for action in actions:
+            result = []
             for var in var_dict.keys():
                 valuation = var_dict[var].values
                 for val in valuation:
