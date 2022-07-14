@@ -6,8 +6,8 @@ __version__ = "0.0.1"
 import argparse
 import sys
 
-from . import utils
-from .smv_based_evidence import *
+import utils
+from smv_based_evidence import *
 
 
 def main():
