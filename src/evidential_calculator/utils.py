@@ -6,7 +6,7 @@ __version__ = "0.0.1"
 import csv
 import io
 
-from .smv_based_evidence import *
+from smv_based_evidence import *
 
 
 def output_evidence_set(es, output_format):
@@ -25,7 +25,6 @@ def construct_csv(action_to_evidence: dict[str, tuple[str, str]]):
     header = ["action", "evidence"]
     w = csv.writer(
         output,
-        sys.stdout,
         delimiter=",",
         quotechar='"',
         quoting=csv.QUOTE_MINIMAL,
