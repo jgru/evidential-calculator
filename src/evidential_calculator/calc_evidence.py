@@ -27,8 +27,7 @@ def main():
 
     with NuSMVEvidenceProcessor(model_data) as ep:
         es = ep.calc_set(args.action, args.etype, args.compound)
-        # utils.output_evidence_set(es, args.output_format)
-        print(es)
+        utils.output_evidence_set(es, args.output_format)
 
 
 def parse_args():
