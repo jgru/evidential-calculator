@@ -26,8 +26,9 @@ def main():
         model_data = sys.stdin.read()
 
     with NuSMVEvidenceProcessor(model_data) as ep:
-        es = ep.calc_set(args.action, args.etype)
-        utils.output_evidence_set(es, args.output_format)
+        es = ep.calc_set(args.action, args.etype, args.compound)
+        # utils.output_evidence_set(es, args.output_format)
+        print(es)
 
 
 def parse_args():
@@ -42,6 +43,7 @@ def parse_args():
     parser.add_argument(
         "-t",
         "--etype",
+        default=EvidenceType.sufficient.value,
         choices=[EvidenceType.sufficient.value, EvidenceType.necessary.value],
         help="Type of evidence to calculate",
     )
@@ -55,6 +57,13 @@ def parse_args():
             EvidenceFormat.raw.value,
         ],
         help="Output format of the calculated sets",
+    )
+    parser.add_argument(
+        "-c",
+        "--compound",
+        required=False,
+        action="store_true",
+        help="Calculate compound traces (only relevant for SE)",
     )
     parser.add_argument(
         "model",
