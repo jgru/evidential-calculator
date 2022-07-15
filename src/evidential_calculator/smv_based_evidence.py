@@ -149,10 +149,7 @@ class NuSMVEvidenceProcessor:
         for action in actions:
             result = []
             for var, valuation in var_dict.items():
-                if isinstance(valuation, pn.model.Boolean):
-                    values = [pn.model.Trueexp(), pn.model.Falseexp()]
-                else:
-                    values = valuation.values
+                values = self.get_values(valuation)
                 for d in [{var: val} for val in values]:
                     if check_func(action, d):
                         # ((var, val),) = d.items()
@@ -168,7 +165,8 @@ class NuSMVEvidenceProcessor:
         for action in actions:
             result = []
             for d in self.powerdict(_vars):
-                a = [v.values for v in d.values()]
+
+                a = [self.get_values(v) for v in d.values()]
 
                 combos = [
                     dict(zip(d.keys(), comb))
@@ -247,6 +245,16 @@ class NuSMVEvidenceProcessor:
         is_unreachable = pn.mc.check_ltl_spec(spec)
 
         return releases and not is_unreachable
+
+    @staticmethod
+    def get_values(valuation: pn.model.SimpleType):
+        """
+        Retrieves the values from pn.model.Scalar or pn.model.Boolean-objects.
+        This is necessary, since Booleans do not have a values-member.
+        """
+        if isinstance(valuation, pn.model.Boolean):
+            return [pn.model.Trueexp(), pn.model.Falseexp()]
+        return valuation.values
 
     @staticmethod
     def powerset(set_):
