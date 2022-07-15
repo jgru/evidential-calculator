@@ -193,6 +193,8 @@ class NuSMVEvidenceProcessor:
 
         FIXME: Check if this works with
         """
+        assert len(d) == 1, "AE can't handle compound traces"
+
         ((var, val),) = d.items()
         # X (G ((A -> E) & Y (E -> O A)))
         s1 = f"X (G((({action_name} = {action}) -> ({var} = {val})) & Y(({var} = {val}) -> O ({action_name} = {action}))))"
@@ -206,6 +208,10 @@ class NuSMVEvidenceProcessor:
         d: dict[pn.model.Identifier, pn.model.Expression],
         action_name: str = ACTION_NAME,
     ):
+        assert (
+            len(d) == 1
+        ), "NE can't and doesn't need to handle compound traces (formula is distributive)"
+
         ((var, val),) = d.items()
         s1 = f"X (G({action_name} = {action} ->  (G {var} = {val})))"
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
