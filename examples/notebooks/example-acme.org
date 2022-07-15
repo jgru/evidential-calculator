@@ -1,0 +1,107 @@
+#+title: Literate Solution of Gladyshev's "ACME Printer Case"
+#+PROPERTY: header-args :session ex1
+
+* Setup
+Activate the virtual environment =venv=
+#+begin_src elisp :results silent :var path="../../"
+(pyvenv-activate (concat path "/venv"))
+#+end_src
+
+Import the =evidental_calculator=-module:
+#+name: prep
+#+begin_src python :results output :var path="../../"
+import sys
+from pathlib import Path
+
+# Make custom modules accessible for Python env
+base = Path(path)
+sys.path.append(str(base / "src"))
+import evidential_calculator.smv_based_evidence as sbe
+import evidential_calculator.utils as utils
+
+print("Successfully imported evidential_calculator-module")
+#+end_src
+
+#+RESULTS: prep
+: Successfully imported evidential_calculator-module
+
+* Model Specification
+
+#+name: ex-acme-smv
+#+begin_example
+MODULE main
+    VAR
+        action: {add_job_a, add_job_b, take_job, nop};
+        printdir_1: {Empty, JobA, JobB, DelA, DelB};
+        printdir_2: {Empty, JobA, JobB, DelA, DelB};
+    INIT
+        action = nop
+    INIT
+        printdir_1 = Empty
+    INIT
+        printdir_2 = Empty
+    DEFINE
+        is_printdir_1_usable   := (printdir_1 = Empty | printdir_1 = DelA | printdir_1 = DelB);
+        is_printdir_2_usable   := (printdir_2 = Empty | printdir_2 = DelA | printdir_2 = DelB);
+        is_job_a   := (printdir_1 = JobA) | (printdir_2 = JobA);
+        is_job_b   := (printdir_1 = JobB) | (printdir_2 = JobB);  
+    ASSIGN
+        next(printdir_1) := 
+           case
+               next(action) = add_job_a:
+                 case
+                   is_printdir_1_usable : JobA;
+                   TRUE: printdir_1;
+                 esac;
+               next(action) = add_job_b: 
+                 case
+                   is_printdir_1_usable : JobB;
+                   TRUE: printdir_1;
+                 esac;
+               next(action) = take_job: 
+                 case
+                   !is_printdir_1_usable :
+                     case
+                       printdir_1 = JobA : DelA;
+                       printdir_1 = JobB : DelB;
+                     esac;
+                   TRUE: printdir_1;
+                 esac;
+              TRUE: printdir_1;
+          esac;
+        next(printdir_2) := 
+           case
+               next(action) = add_job_a:
+                 case
+                   !is_printdir_1_usable & is_printdir_2_usable : JobA;
+                   TRUE: printdir_2;
+                 esac;
+               next(action) = add_job_b: 
+                 case
+                   !is_printdir_1_usable & is_printdir_2_usable : JobB;
+                   TRUE: printdir_2;
+                 esac;
+               next(action) = take_job: 
+                 case
+                  is_printdir_1_usable & !is_printdir_2_usable :
+                     case
+                       printdir_2 = JobA : DelA;
+                       printdir_2 = JobB : DelB;
+                     esac;
+                   TRUE: printdir_2;
+                 esac;
+               TRUE: printdir_2; 
+          esac;
+
+    TRANS
+        next(action) = add_job_a -> !is_job_a
+    TRANS
+        next(action) = add_job_b -> !is_job_b
+    TRANS
+        next(action) = take_job -> !is_printdir_1_usable | !is_printdir_2_usable
+    TRANS
+        next(action) = nop -> TRUE
+#+end_example
+
+* Solution using our Prototype
+* Explanatatory Solution
