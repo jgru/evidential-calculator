@@ -26,7 +26,9 @@ def main():
         model_data = sys.stdin.read()
 
     with NuSMVEvidenceProcessor(model_data) as ep:
-        es = ep.calc_set(args.action, args.etype, args.compound)
+        es = ep.calc_set(
+            args.action, EvidenceType.normalize(args.etype), args.compound
+        )
         output_evidence_set(es, args.output_format)
 
 
