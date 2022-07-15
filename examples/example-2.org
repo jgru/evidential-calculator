@@ -1,0 +1,153 @@
+#+title: Literate Calculation of Evidence Sets for Example 2 
+#+PROPERTY: header-args :session ex2
+
+This example considers a model that houses unreachable action. This
+action covers the actual traces.
+
+* Setup 
+
+Activate the virtual environment =venv=
+#+begin_src elisp :results silent :var path="../../"
+(pyvenv-activate (concat path "/venv"))
+#+end_src
+
+Import the =evidental_calculator=-module:
+#+name: prep
+#+begin_src python :results output :var path="../../" 
+import sys
+from pathlib import Path
+
+# Make custom modules accessible for Python env
+base = Path(path)
+sys.path.append(str(base / "src"))
+import evidential_calculator.smv_based_evidence as sbe
+import evidential_calculator.utils as utils
+
+print("Successfully imported evidential_calculator-module")
+#+end_src
+
+#+RESULTS: prep
+: Successfully imported evidential_calculator-module
+
+* Model Specification
+** GCL Specification
+#+name: ex2-gcl
+#+begin_example
+variables {a, b}
+init {a=0, b=0}
+actions a1: a=0 -> b:=1;
+        a2: a=1 -> b:=1;
+#+end_example
+** SMV Specification
+The GCL program given in listing [[ex2-gcl]] can be transformed into the
+below-mentioned SMV-model:
+
+#+name: ex2-smv
+#+begin_example
+MODULE main
+    VAR
+        action: {a1, a2, unconstrain};
+        a: boolean;
+        b: boolean;
+    INIT
+        a = FALSE
+    INIT
+        b = FALSE
+    INIT
+        action = unconstrain
+    ASSIGN
+        next(b) :=
+            case
+                next(action) = a1: TRUE;
+                next(action) = a2: TRUE;
+                TRUE: b;
+            esac;
+        next(a) := a;
+    TRANS
+        next(action) = a1 -> a = FALSE
+    TRANS
+        next(action) = a2 -> a = TRUE
+    TRANS
+        next(action) = unconstrain -> TRUE
+#+end_example
+
+
+* Calculation of Evidence Sets
+:PROPERTIES:
+:header-args+: :results output table raw :var model_data=ex2-smv
+:END:
+** Action-induced Evidence 
+#+begin_src python 
+actions = None  # Consider all actions in the model
+
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for all actions
+    es = ep.calc_set(actions, sbe.EvidenceType.action_induced)
+    # Output evidence sets as table
+    utils.output_evidence_set(es, "org")
+#print(es)
+#+end_src
+
+#+RESULTS:
+|-------------------------+-------------|
+| Desc                    | Assignments |
+|-------------------------+-------------|
+| Evidence of a1          | {b: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a2          |             |
+|-------------------------+-------------|
+| Evidence of unconstrain | {a: FALSE}  |
+|-------------------------+-------------|
+
+** Sufficient Evidence
+#+begin_src python 
+is_compound = False  # Look at each variable individually
+actions = None  # Consider all actions in the model
+
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for all actions
+    es = ep.calc_set(actions, sbe.EvidenceType.sufficient, False)
+    # Output evidence sets as table
+    utils.output_evidence_set(es, "org")
+#print(es)
+#+end_src
+
+#+RESULTS:
+|-------------------------+-------------|
+| Desc                    | Assignments |
+|-------------------------+-------------|
+| Evidence of a1          | {b: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a2          |             |
+|-------------------------+-------------|
+| Evidence of unconstrain |             |
+|-------------------------+-------------|
+** Necessary Evidence 
+#+begin_src python 
+is_compound = False  # Look at each variable individually
+actions = None  # Consider all actions in the model
+
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for all actions
+    es = ep.calc_set(actions, sbe.EvidenceType.necessary)
+    # Output evidence sets as table
+    utils.output_evidence_set(es, "org")
+#print(es)
+#+end_src
+
+#+RESULTS:
+|-------------------------+-------------|
+| Desc                    | Assignments |
+|-------------------------+-------------|
+| Evidence of a1          | {a: FALSE}  |
+|                         | {b: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a2          | {a: FALSE}  |
+|                         | {b: TRUE}   |
+|                         | {b: FALSE}  |
+|-------------------------+-------------|
+| Evidence of unconstrain | {a: FALSE}  |
+|-------------------------+-------------|
+
+=>
+und genau darauf können wir dann sehen dass a2 unmöglich ist weil der compound necessary evidence inkonsistent ist
