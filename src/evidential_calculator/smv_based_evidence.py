@@ -229,15 +229,15 @@ class NuSMVEvidenceProcessor:
 
         releases = pn.mc.check_ltl_spec(spec)
 
-        # Early exit since the trace is definitely not characteristic
+        # Early exit since the trace is definitely not sufficient
         if not releases:
             return releases
 
         # FIXME, is this correct for _compound_ traces?
         # Checks, if the variable is actually modified at some point
         s2 = (
-            "("
-            + " | ".join([f"G({var} != {val})" for var, val in d.items()])
+            "G("
+            + " & ".join([f"({var} != {val})" for var, val in d.items()])
             + ")"
         )
 
