@@ -24,7 +24,7 @@ print("Successfully imported evidential_calculator-module")
 #+RESULTS: prep
 : Successfully imported evidential_calculator-module
 
-* Model
+* Model Specification
 ** GCL Specification
 #+name: ex1-gcl
 #+begin_example
