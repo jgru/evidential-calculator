@@ -200,7 +200,12 @@ class NuSMVEvidenceProcessor:
         s1 = f"X (G((({action_name} = {action}) -> ({var} = {val})) & Y(({var} = {val}) -> O ({action_name} = {action}))))"
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
         res = pn.mc.check_ltl_spec(spec)
-        return res
+
+        # Early exit since the trace is definitely not
+        if not res:
+            return res
+
+        return res and not NuSMVEvidenceProcessor.is_unreachable(d)
 
     @staticmethod
     def check_necessary_trace(
@@ -216,8 +221,12 @@ class NuSMVEvidenceProcessor:
         s1 = f"X (G({action_name} = {action} ->  (G {var} = {val})))"
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
         res = pn.mc.check_ltl_spec(spec)
+        # return res
+        # Early exit since the trace is definitely not
+        if not res:
+            return res
 
-        return res
+        return res and not NuSMVEvidenceProcessor.is_unreachable(d)
 
     @staticmethod
     def check_sufficient_trace(
@@ -240,6 +249,11 @@ class NuSMVEvidenceProcessor:
             return releases
 
         # FIXME, is this correct for _compound_ traces?
+        return releases and not NuSMVEvidenceProcessor.is_unreachable(d)
+
+    @staticmethod
+    def is_unreachable(d):
+        ((var, val),) = d.items()
         # Checks, if the variable is actually modified at some point
         s2 = (
             "G("
@@ -248,9 +262,7 @@ class NuSMVEvidenceProcessor:
         )
 
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s2))
-        is_unreachable = pn.mc.check_ltl_spec(spec)
-
-        return releases and not is_unreachable
+        return pn.mc.check_ltl_spec(spec)
 
     @staticmethod
     def get_values(valuation: pn.model.SimpleType):
