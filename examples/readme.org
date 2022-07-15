@@ -1,0 +1,48 @@
+#+title: Preparations to Run the Literate Examples
+#+author: Jan Gru
+#+language: en
+
+First, find the base directory:
+#+name: basepath
+#+begin_src elisp 
+(let ((basepath 
+        (file-name-as-directory
+          (concat (file-name-as-directory 
+                    (concat default-directory "..")) ".."))))
+  (expand-file-name basepath))
+#+end_src
+
+#+RESULTS: basepath
+: /media/user01/data/store/research/projects/event-reconstruction-and-model-checking/evidential-calculator/
+
+
+Second, create Python virtual environment called =venv= by running:
+#+begin_src shell :results output verbatim :var BP=basepath
+python3.9 -m venv venv 
+source venv/bin/activate
+cd $BP/deps/pynusmv && pip3 install .
+# Eventually, install the evidential_calculator-package
+# cd $BP && pip3 install .
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Processing /media/user01/data/store/research/projects/event-reconstruction-and-model-checking/evidential-calculator/deps/pynusmv
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+Collecting pyparsing
+  Using cached pyparsing-3.0.9-py3-none-any.whl (98 kB)
+Using legacy 'setup.py install' for pynusmv, since package 'wheel' is not installed.
+Installing collected packages: pyparsing, pynusmv
+  Running setup.py install for pynusmv: started
+  Running setup.py install for pynusmv: finished with status 'done'
+Successfully installed pynusmv-1.0rc8 pyparsing-3.0.9
+#+end_example
+
+Third, activate the virtual environment =venv=, so that Python
+interpreter is taken up from this virtual environment.
+
+Please not, that this requires the Emacs package [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]]:
+#+begin_src elisp :results silent :var path=basepath
+(pyvenv-activate (concat path "/venv"))
+#+end_src
