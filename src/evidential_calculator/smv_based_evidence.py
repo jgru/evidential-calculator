@@ -184,6 +184,25 @@ class NuSMVEvidenceProcessor:
         return results
 
     @staticmethod
+    def check_action_induced_trace(
+        action: pn.model.Identifier,
+        d: dict[pn.model.Identifier, pn.model.Expression],
+        action_name: str = "action",
+    ):
+        """
+        Checks, wether setting of timestamp type ts of filepath is
+        action-induced evidence of action
+
+        FIXME: Check if this works with
+        """
+        ((var, val),) = d.items()
+        # X (G ((A -> E) & Y (E -> O A)))
+        s1 = f"X (G((({action_name} = {action}) -> ({var} = {val})) & Y(({var} = {val}) -> O ({action_name} = {action}))))"
+        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
+        res = pn.mc.check_ltl_spec(spec)
+        return res
+
+    @staticmethod
     def check_necessary_trace(
         action: pn.model.Identifier,
         d: dict[pn.model.Identifier, pn.model.Expression],
