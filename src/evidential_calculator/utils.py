@@ -56,10 +56,11 @@ def construct_org_table(action_to_evidence, title="Evidence"):
     """
     org_table_string = ""
     l = len(f"{max(action_to_evidence.keys(), key=len)} of {title} ")
+
     row_sep = f"|{l * '--'}|\n"
     col_heading_1 = "Desc"
     col_heading_2 = "Assignments"
-    org_table_string = f"| {col_heading_1} {(l//2- len(col_heading_1)) * ' ' }| {col_heading_2} {(l//2- len(col_heading_2)) * ' '}\n"
+    org_table_string = f"{row_sep}| {col_heading_1} {(l//2- len(col_heading_1)) * ' ' }| {col_heading_2} {(l//2- len(col_heading_2)) * ' '}\n"
 
     for key in sorted(action_to_evidence.keys()):
         h = f"{title} of {key}"
