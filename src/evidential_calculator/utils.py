@@ -5,11 +5,20 @@ __version__ = "0.0.1"
 
 import csv
 import io
+from enum import Enum
+from typing import Union
 
-from .smv_based_evidence import *
+
+class EvidenceFormat(Enum):
+    org = "org"
+    csv = "csv"
+    raw = "raw"
+
+    def __str__(self) -> str:
+        return str.__str__(self)
 
 
-def output_evidence_set(es, output_format):
+def output_evidence_set(es, output_format: Union[EvidenceFormat, str]):
     if output_format == EvidenceFormat.csv.value:
         output = construct_csv(es)
     elif output_format == EvidenceFormat.org.value:

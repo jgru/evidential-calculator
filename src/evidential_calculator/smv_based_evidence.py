@@ -19,15 +19,6 @@ class EvidenceType(Enum):
         return str.__str__(self)
 
 
-class EvidenceFormat(Enum):
-    org = "org"
-    csv = "csv"
-    raw = "raw"
-
-    def __str__(self) -> str:
-        return str.__str__(self)
-
-
 class NuSMVEvidenceProcessor:
     ACTION_NAME = "action"
 
