@@ -18,6 +18,19 @@ class EvidenceType(Enum):
     def __str__(self) -> str:
         return str.__str__(self)
 
+    def normalize(_type: Union[Enum, str]):
+        if isinstance(_type, EvidenceType):
+            return _type
+        else:
+            if _type == EvidenceType.necessary.value:
+                return EvidenceType.necessary
+            elif _type == EvidenceType.sufficient.value:
+                return EvidenceType.sufficient
+            elif _type == EvidenceType.action_induced.value:
+                return EvidenceType.action_induced
+            else:
+                raise ValueError(f"Can't convert {_type} to EvidenceType")
+
 
 class NuSMVEvidenceProcessor:
     ACTION_NAME = "action"
@@ -99,19 +112,17 @@ class NuSMVEvidenceProcessor:
         return actions
 
     @classmethod
-    def evidence_type_to_func(
-        cls, _type: Union[EvidenceType, str]
-    ) -> Callable:
-
-        if isinstance(_type, EvidenceType):
-            _type = _type.value
-
-        if _type == EvidenceType.necessary.value:
+    def evidence_type_to_func(cls, _type: EvidenceType) -> Callable:
+        if _type == EvidenceType.necessary:
             return cls.check_necessary_trace
-        elif _type == EvidenceType.sufficient.value:
+        elif _type == EvidenceType.sufficient:
             return cls.check_sufficient_trace
+        elif _type == EvidenceType.action_induced:
+            return cls.check_action_induced_trace
         else:
-            raise NotImplemented("Action-induced evicence not implemented yet")
+            raise NotImplemented(
+                "{_type.value} evidence sets are not implemented yet"
+            )
 
     def calc_set(
         self,
@@ -127,7 +138,7 @@ class NuSMVEvidenceProcessor:
             actions = self.get_model_actions()
 
         # Calculate compound SE differently
-        if _type == EvidenceType.sufficient.value and compound:
+        if _type == EvidenceType.sufficient and compound:
             return self.calc_set_compound(actions)
 
         check_func = self.evidence_type_to_func(_type)
