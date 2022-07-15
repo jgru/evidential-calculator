@@ -49,13 +49,17 @@ def construct_csv(action_to_evidence: dict[str, tuple[str, str]]):
 
 
 def construct_org_table(action_to_evidence, title="Evidence"):
+    """
+    A very naive (and incomplete) implementation to print evidence
+    sets as org-mode-tables. This should only be used with org-babel
+    and `:results output table raw'
+    """
     org_table_string = ""
     l = len(f"{max(action_to_evidence.keys(), key=len)} of {title} ")
     row_sep = f"|{l * '--'}|\n"
-
-    org_table_string = (
-        f"| Desc {l//3 * ' '}| Var {l//3 * ' '}| Val {l/3 * ' '}|\n"
-    )
+    col_heading_1 = "Desc"
+    col_heading_2 = "Assignments"
+    org_table_string = f"| {col_heading_1} {(l//2- len(col_heading_1)) * ' ' }| {col_heading_2} {(l//2- len(col_heading_2)) * ' '}\n"
 
     for key in sorted(action_to_evidence.keys()):
         h = f"{title} of {key}"
@@ -63,10 +67,9 @@ def construct_org_table(action_to_evidence, title="Evidence"):
         org_table_string += row_sep
         values = action_to_evidence[key]
         if not values:
-            org_table_string += f"| {h:>5} |  | \n"
+            org_table_string += f"| {h:>5} | \n"
         for value in values:
-            f, v = value
-            org_table_string += f"| {h:>5} | {f:>5} | {v:>5} |\n"
+            org_table_string += f"| {h:>5} | {value} |\n"
             h = " " * l
 
     org_table_string += row_sep
