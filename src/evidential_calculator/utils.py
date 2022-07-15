@@ -6,7 +6,7 @@ __version__ = "0.0.1"
 import csv
 import io
 
-from smv_based_evidence import *
+from .smv_based_evidence import *
 
 
 def output_evidence_set(es, output_format):

@@ -1,4 +1,5 @@
 import copy
+import sys
 import time
 from collections.abc import Callable
 from enum import Enum
@@ -67,12 +68,16 @@ class NuSMVEvidenceProcessor:
             pn.exception.NuSMVModelAlreadyFlattenedError,
         ) as e:
             if isinstance(e, pn.exception.NuSMVModelAlreadyFlattenedError):
-                logging.info("Model already flat ", e)
+                pass
+                # print(f"Model already flat {e}")
             else:
-                logging.error("NuSMV error loading or computing error  ", e)
+                print(
+                    f"NuSMV error loading or computing error {e}",
+                    file=sys.stderr,
+                )
                 return False
 
-        logging.info(f"Loading model took {time.time()-t0} secs")
+        # print(f"Loading model took {time.time()-t0} secs", file=sys.stderr)
 
         return True
 
@@ -142,7 +147,11 @@ class NuSMVEvidenceProcessor:
         for action in actions:
             result = []
             for var, valuation in var_dict.items():
-                for d in [{var: val} for val in valuation.values]:
+                if isinstance(valuation, pn.model.Boolean):
+                    values = [pn.model.Trueexp(), pn.model.Falseexp()]
+                else:
+                    values = valuation.values
+                for d in [{var: val} for val in values]:
                     if check_func(action, d):
                         # ((var, val),) = d.items()
                         result.append(d)

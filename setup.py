@@ -2,4 +2,6 @@
 
 import setuptools
 
-setuptools.setup()
+setuptools.setup(
+    scripts=["src/calc_evidence.py"],
+)
