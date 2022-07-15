@@ -1,0 +1,168 @@
+#+title: Literate Calculation of Evidence Sets for Example 3 
+
+This example considers an action that is guarded by a semaphore.
+
+* Setup 
+Activate the virtual environment =venv=
+#+begin_src elisp :results silent :var path="../../"
+(pyvenv-activate (concat path "/venv"))
+#+end_src
+
+Import the =evidental_calculator=-module:
+#+name: prep
+#+begin_src python :results output :var path="../../" :session ex3
+import sys
+from pathlib import Path
+
+# Make custom modules accessible for Python env
+base = Path(path)
+sys.path.append(str(base / "src"))
+import evidential_calculator.smv_based_evidence as sbe
+import evidential_calculator.utils as utils
+
+print("Successfully imported evidential_calculator-module")
+#+end_src
+
+#+RESULTS: prep
+: Successfully imported evidential_calculator-module
+
+* Model Specification
+** GCL Specification
+#+name: ex3-gcl
+#+begin_example
+variables {a, b}
+init {a=0, b=0}
+actions a0: TRUE -> a:=0;
+        a1: TRUE -> a:=1;
+        b0: a=1  -> b:=0;
+        b1: a=1  -> b:=1;
+#+end_example
+
+** SMV Specification
+The GCL program given in listing [[ex3-gcl]] can be transformed into the
+following SMV-model:
+
+#+name: ex3-smv
+#+begin_example
+MODULE main
+    VAR
+        action: {a0, a1, b0, b1, unconstrain};
+        a: boolean;
+        b: boolean;
+    INIT
+        a = FALSE
+    INIT
+        b = FALSE
+    INIT
+        action = unconstrain
+    ASSIGN
+        next(a) :=
+            case
+                next(action) = a0: FALSE;
+                next(action) = a1: TRUE;
+                TRUE: a;
+            esac;
+        next(b) :=
+            case
+                next(action) = b0: FALSE;
+                next(action) = b1: TRUE;
+                TRUE: b;
+            esac;
+    TRANS
+        next(action) = a0 -> TRUE
+    TRANS
+        next(action) = a1 -> TRUE
+    TRANS
+        next(action) = b0 -> a = TRUE
+    TRANS
+        next(action) = b1 -> a = TRUE
+    TRANS
+        next(action) = unconstrain -> TRUE
+#+end_example
+
+* Calculation of Evidence Sets
+:PROPERTIES:
+:header-args+: :results output table raw :var model_data=ex3-smv :session ex3
+:END:
+** Action-induced Evidence 
+#+begin_src python 
+actions = None  # Consider all actions in the model
+
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for all actions
+    es = ep.calc_set(actions, sbe.EvidenceType.action_induced)
+    # Output evidence sets as table
+    utils.output_evidence_set(es, "org")
+#print(es)
+#+end_src
+
+#+RESULTS:
+|-------------------------+-------------|
+| Desc                    | Assignments |
+|-------------------------+-------------|
+| Evidence of a0          |             |
+|-------------------------+-------------|
+| Evidence of a1          | {a: TRUE}   |
+|-------------------------+-------------|
+| Evidence of b0          |             |
+|-------------------------+-------------|
+| Evidence of b1          | {b: TRUE}   |
+|-------------------------+-------------|
+| Evidence of unconstrain |             |
+|-------------------------+-------------|
+
+** Sufficient Evidence
+#+begin_src python 
+is_compound = False  # Look at each variable individually
+actions = None  # Consider all actions in the model
+
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for all actions
+    es = ep.calc_set(actions, sbe.EvidenceType.sufficient, False)
+    # Output evidence sets as table
+    utils.output_evidence_set(es, "org")
+#print(es)
+#+end_src
+
+#+RESULTS:
+|-------------------------+-------------|
+| Desc                    | Assignments |
+|-------------------------+-------------|
+| Evidence of a0          |             |
+|-------------------------+-------------|
+| Evidence of a1          | {a: TRUE}   |
+|                         | {b: TRUE}   |
+|-------------------------+-------------|
+| Evidence of b0          |             |
+|-------------------------+-------------|
+| Evidence of b1          | {b: TRUE}   |
+|-------------------------+-------------|
+| Evidence of unconstrain |             |
+|-------------------------+-------------|
+** Necessary Evidence 
+#+begin_src python 
+is_compound = False  # Look at each variable individually
+actions = None  # Consider all actions in the model
+
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for all actions
+    es = ep.calc_set(actions, sbe.EvidenceType.necessary)
+    # Output evidence sets as table
+    utils.output_evidence_set(es, "org")
+#print(es)
+#+end_src
+
+#+RESULTS:
+|-------------------------+-------------|
+| Desc                    | Assignments |
+|-------------------------+-------------|
+| Evidence of a0          |             |
+|-------------------------+-------------|
+| Evidence of a1          |             |
+|-------------------------+-------------|
+| Evidence of b0          |             |
+|-------------------------+-------------|
+| Evidence of b1          |             |
+|-------------------------+-------------|
+| Evidence of unconstrain |             |
+|-------------------------+-------------|
