@@ -37,6 +37,7 @@ def construct_csv(action_to_evidence: dict[str, tuple[str, str]]):
         delimiter=",",
         quotechar='"',
         quoting=csv.QUOTE_MINIMAL,
+        dialect="unix",
     )
 
     w.writerow(header)
@@ -45,7 +46,7 @@ def construct_csv(action_to_evidence: dict[str, tuple[str, str]]):
         for evidences in action_to_evidence[key]:
             evidences = [key, evidences]
             w.writerow(evidences)
-    return output.getvalue().strip("\r\n")
+    return output.getvalue().strip("\r\n").strip("\r").strip("\n")
 
 
 def construct_org_table(action_to_evidence, title="Evidence"):
