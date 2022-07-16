@@ -1,33 +1,5 @@
 #+title: Literate Solution of Gladyshev's /ACME Printer Case/
 
-* Setup
-Activate the virtual environment =venv=
-#+begin_src elisp :results silent :var path="../../"
-(pyvenv-activate (concat path "/venv"))
-#+end_src
-
-Import the =evidental_calculator=-module:
-#+name: pythonsetup
-#+begin_src python :results output :var path="../../"
-import sys
-from pathlib import Path
-
-# Make custom modules accessible for Python env
-base = Path(path)
-sys.path.append(str(base / "src"))
-import evidential_calculator.smv_based_evidence as sbe
-import evidential_calculator.utils as utils
-
-print("Successfully imported evidential_calculator-module")
-#+end_src
-
-#+RESULTS: prep
-
-#+name: shellsetup
-#+begin_src shell :results output verbatim
-source ../venv/bin/activate
-#+end_src
-
 * The ACME-Printer-Case
 ** Literature References
 In 2004, Gladyshev & Patel presented a fictious example case
@@ -158,10 +130,109 @@ MODULE main
         next(action) = nop -> TRUE
 #+end_example
 
-#+name: test
+* Solution Using Our Library
+:PROPERTIES:
+:header-args+: :session ex-acme
+:END:
+In this section, we demonstrate how our Python-module named
+=smv_based_evidence.py= can be used to solve the /ACME Printer Case/.
+
+** Setup
+To use the module, create and then activate the virtual environment
+=venv=:
+#+begin_src elisp :results silent :var path="../"
+(pyvenv-activate (concat path "/venv"))
+#+end_src
+
+Afterwards, start the Python-session and import the
+=evidental_calculator=-module:
+#+name: pythonsetup
+#+begin_src python :results output :var path="../"
+import sys
+from pathlib import Path
+import pynusmv as pn 
+
+# Make custom modules accessible for Python env
+base = Path(path)
+sys.path.append(str(base / "src"))
+import evidential_calculator.smv_based_evidence as sbe
+import evidential_calculator.utils as utils
+
+print("Successfully imported evidential_calculator-module")
+#+end_src
+
+#+RESULTS: pythonsetup
+: Successfully imported evidential_calculator-module
+
+#+RESULTS: prep
+
+** Calculate the Set of Sufficient Evidence
+Based on the model specified above, we calculate the evidence set of
+sufficient evidence for the action =add_job_a=, which corresponds to
+Alice sending a print job. This is done by initializing the
+=NuSMVEvidenceProcessor(model_data)= with the model data, specifying
+the action and calling =calc_set= passing the action and stating that
+we are interested in "sufficient" evidence.
+
+#+begin_src python :var model_data=ex-acme-smv :results output verbatim
+# We are interested in Alice submitting a print job
+action = "add_job_a" 
+
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for that action
+    se = ep.calc_set(action, "sufficient")
+    # Output evidence sets as table
+    print(se)
+#+end_src
+
+#+RESULTS:
+: {'add_job_a': [{printdir_1: JobA}, {printdir_1: DelA}, {printdir_2: JobA}, {printdir_2: JobB}, {printdir_2: DelA}, {printdir_2: DelB}]}
+
+
+** Answering the Investigative Question
+
+Since we operated on the NuSMV-model presented in [[ex-acme-smv]], the
+observed evidence presented in [[lst-observed-evidence]] in a
+human-oriented form has be translated to the following form...
+
+#+name: e-obs
 #+begin_example
-Test
+{printdir_1: DelB}
+{printdir_2: DelB}
 #+end_example
+
+...and read as a list of dicts. 
+
+#+begin_src python :var e_obs_raw=e-obs :results output verbatim
+entries = [l.strip() for l in e_obs_raw.split("\n") if l]
+e_obs = dict((pn.model.Identifier(a.strip()), pn.model.Identifier(b.strip())) 
+                     for a, b in (e[1:-1].split(':') 
+                                  for e in entries))  
+print(evidence_dict)
+#+end_src
+
+#+RESULTS:
+: {'printdir_1': 'DelB', 'printdir_2': 'DelB'}
+
+
+Having the observed evidence avaiable as such an =evidence_dict=, we
+can simply check whether the formula
+
+\[\exists s \in SE(add_job_a, M) \mid s \subseteq E_{obs}\]
+
+holds and identify the element \(s\) of interest.
+
+#+name: check-s-in-e-obs-py
+#+begin_src python :var model_data=ex-acme-smv :results output verbatim
+for s in se[action]:
+    if s.items() <= e_obs.items():
+        print(f"Found sufficient evidence for {action}:\n\t{s}")
+#+end_src
+
+#+RESULTS: check-s-in-e-obs-py
+: Found sufficient evidence for add_job_a:
+: 	{printdir_2: DelB}
+
 * Solution Using Our Prototypical CLI-Tool
 :PROPERTIES:
 :header-args: :noweb yes :results output table 
@@ -177,7 +248,7 @@ Alice sending a print job.
 
 #+name: se-add-job-a
 #+begin_src shell :var model=ex-acme-smv :results output verbatim
-<<shellsetup>> 
+source ../venv/bin/activate
 echo $model | python3 ../src/calc_evidence.py -o csv -a "add_job_a" -t "sufficient"
 #+end_src
 
@@ -221,19 +292,11 @@ echo $PATTERN
 #+RESULTS: se-regex
 (\{printdir_1: JobA\}|\{printdir_1: DelA\}|\{printdir_2: JobA\}|\{printdir_2: JobB\}|\{printdir_2: DelA\}|\{printdir_2: DelB\})
 
-Since we operated on the NuSMV-model presented in [[ex-acme-smv]], the
-observed evidence presented in [[lst-observed-evidence]] in a
-human-oriented form has be translated to the following form:
-
-#+name: e-obs
-#+begin_example
-{printdir_1: DelB}
-{printdir_2: DelB}
-#+end_example
-
-Afterwards, we check whether there exists an element in the SE-set
-that is part of the observed evidences, put formally
- \[\exists s \in SE(add_job_a, M) \mid s \subseteq E_{obs}\]
+Again, we have to operate on the machine-readable version of the
+observed evidence as it was already presented in [[e-obs]]. Based on this
+representation, we check whether there exists an element in the SE-set
+that is part of the observed evidences, put formally \[\exists s \in
+SE(add_job_a, M) \mid s \subseteq E_{obs}\]
 
 #+name: check-s-in-e-obs
 #+begin_src shell :var evidence_obs=e-obs pattern=se-regex :results output verbatim
@@ -246,4 +309,3 @@ echo $evidence_obs | grep -o -E $pattern
 Since there is such an element \(s \in SE{}\) (={printdir_2: DelB}=)
 that exists in \(E_{obs}\), Alice must have printed at least once.
 
-* Solution Using Our Library
