@@ -127,9 +127,10 @@ class NuSMVEvidenceProcessor:
     def calc_set(
         self,
         action: pn.model.Identifier,
-        _type: EvidenceType,
+        _type: Union[EvidenceType, str],
         compound: bool = False,
     ):
+        _type = EvidenceType.normalize(_type)
 
         # Either calculate evidence set for a single action
         if action:
