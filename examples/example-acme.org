@@ -1,5 +1,4 @@
-#+title: Literate Solution of Gladyshev's "ACME Printer Case"
-#+PROPERTY: header-args :session ex1
+#+title: Literate Solution of Gladyshev's /ACME Printer Case/
 
 * Setup
 Activate the virtual environment =venv=
@@ -8,7 +7,7 @@ Activate the virtual environment =venv=
 #+end_src
 
 Import the =evidental_calculator=-module:
-#+name: prep
+#+name: pythonsetup
 #+begin_src python :results output :var path="../../"
 import sys
 from pathlib import Path
@@ -23,10 +22,66 @@ print("Successfully imported evidential_calculator-module")
 #+end_src
 
 #+RESULTS: prep
-: Successfully imported evidential_calculator-module
+
+#+name: shellsetup
+#+begin_src shell :results output verbatim
+source ../venv/bin/activate
+#+end_src
+
+* The ACME-Printer-Case
+** Literature References
+In 2004, Gladyshev & Patel presented a fictious example case
+concerning /ACME Manufacturing/ that was later picked up by James et
+al. (2009) and Soltani & Hosseini-Seno to confront their methods with
+a case study and put it to life.
+
+** Description of Scenario
+The situation described by the above mentioned authors is as follows:
+There is a local area network at the /ACME/ company with two computers
+and a networked printer. Alice and Bob operate the network and share
+the costs. Alice, however, refuses to pay for maintenance of the
+printer and claims to have never used it. Since Bob disagrees, because
+he once saw Alice collecting printouts, an investigation of the facts
+has to be initiated to resolve the dispute.
+
+#+begin_quote
+According to the manufacturer, the printer works as follows:
+
+1. When a print job is received from the user it is stored in the
+first unallocated directory entry of the print job directory.
+2. The printing mechanism scans the print job directory from the
+beginning and picks the first active job.
+3. After the job is printed, the corresponding directory entry is
+marked as "deleted", but the name of the job owner is preserved.
+
+The manufacturer also noted that
+\begin{enumerate}[resume]
+4. The printer can accept only one print job from each user at a time.
+5. Initially, all directory entries are
+  empty." 
+#+end_quote 
+-- (Gladyshev & Patel, 2004, p. 4)
+
+A forensic examination of the print job directory uncovers two
+processed jobs of Bob and the rest of the directory was empty, as
+[[lst-observed-evidence]] illustrates.
+
+#+caption: Evidence \(E_{obs}\) extracted from the printer within the ACME network
+#+name: lst-observed-evidence
+#+begin_example
+job from B (deleted)
+job from B (deleted)
+empty
+empty
+...
+#+end_example
+
+** The Investigative Question
+Given the observed evidence \(E_{obs}\), is it possible to refute
+Alice's testony and prove that she must have used the printer at least
+once?
 
 * Model Specification
-
 #+name: ex-acme-smv
 #+begin_example
 MODULE main
@@ -103,5 +158,92 @@ MODULE main
         next(action) = nop -> TRUE
 #+end_example
 
-* Solution using our Prototype
-* Explanatatory Solution
+#+name: test
+#+begin_example
+Test
+#+end_example
+* Solution Using Our Prototypical CLI-Tool
+:PROPERTIES:
+:header-args: :noweb yes :results output table 
+:END:
+In this section, we demonstrate how our prototypical tool
+=calc_evidence= providing a CLI-interface can be used to solve the
+/ACME Printer Case/.
+
+** Calculate the Set of Sufficient Evidence
+Based on the model specified above, we calculate the evidence set of
+sufficient evidence for the action =add_job_a=, which corresponds to
+Alice sending a print job.
+
+#+name: se-add-job-a
+#+begin_src shell :var model=ex-acme-smv :results output verbatim
+<<shellsetup>> 
+echo $model | python3 ../src/calc_evidence.py -o csv -a "add_job_a" -t "sufficient"
+#+end_src
+
+#+RESULTS: se-add-job-a
+: action,evidence
+: add_job_a,{printdir_1: JobA}
+: add_job_a,{printdir_1: DelA}
+: add_job_a,{printdir_2: JobA}
+: add_job_a,{printdir_2: JobB}
+: add_job_a,{printdir_2: DelA}
+: add_job_a,{printdir_2: DelB}
+
+
+** Answering the Investigative Question
+In order to answer the investigative question, we need to check if an
+element of the set of sufficient evidences is contained within the
+observed evidence. Since we want to show how the CLI-tool can be used,
+we transform the SE-set into a regular expression as illustrated in
+[[se-regex]].
+
+#+name: se-regex
+#+begin_src shell :var traces=se-add-job-a :results output verbatim raw
+PATTERN="("
+while read line
+do
+  if ! [[ (-z "$line" || "$line" == "\n"1 ) ]]
+  then
+     if ! [[ "$PATTERN" == *"(" ]]
+     then
+         PATTERN+="|"
+     fi
+     tline=$(echo $line | sed 's/{/\\{/g' | sed 's/}/\\}/g')
+     #tline=$(echo $line | tr '{' '\\{' | tr '}' '\\}')
+     PATTERN+="${tline}"
+  fi
+done <<< $(echo $traces | cut -d"," -f2 | tail -n+2)
+PATTERN+=")"
+echo $PATTERN
+#+end_src
+
+#+RESULTS: se-regex
+(\{printdir_1: JobA\}|\{printdir_1: DelA\}|\{printdir_2: JobA\}|\{printdir_2: JobB\}|\{printdir_2: DelA\}|\{printdir_2: DelB\})
+
+Since we operated on the NuSMV-model presented in [[ex-acme-smv]], the
+observed evidence presented in [[lst-observed-evidence]] in a
+human-oriented form has be translated to the following form:
+
+#+name: e-obs
+#+begin_example
+{printdir_1: DelB}
+{printdir_2: DelB}
+#+end_example
+
+Afterwards, we check whether there exists an element in the SE-set
+that is part of the observed evidences, put formally
+ \[\exists s \in SE(add_job_a, M) \mid s \subseteq E_{obs}\]
+
+#+name: check-s-in-e-obs
+#+begin_src shell :var evidence_obs=e-obs pattern=se-regex :results output verbatim
+echo $evidence_obs | grep -o -E $pattern
+#+end_src
+
+#+RESULTS:
+: {printdir_2: DelB}
+
+Since there is such an element \(s \in SE{}\) (={printdir_2: DelB}=)
+that exists in \(E_{obs}\), Alice must have printed at least once.
+
+* Solution Using Our Library
