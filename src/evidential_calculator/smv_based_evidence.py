@@ -140,11 +140,10 @@ class NuSMVEvidenceProcessor:
         actions = self.check_actions(actions)
 
         # Calculate compound SE differently
-        if _type == EvidenceType.sufficient and compound:
+        if _type == EvidenceType.sufficient and is_compound:
             return self.calc_set_compound(actions)
 
         check_func = self.evidence_type_to_func(_type)
-
         var_dict = self.get_model_vars()
 
         results = {}
