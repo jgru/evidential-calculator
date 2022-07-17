@@ -255,8 +255,7 @@ class NuSMVEvidenceProcessor:
 
     @staticmethod
     def is_unreachable(d):
-        ((var, val),) = d.items()
-        # Checks, if the variable is actually modified at some point
+        # Checks, if the variables are actually modified at some point
         s2 = (
             "G("
             + " & ".join([f"({var} != {val})" for var, val in d.items()])
