@@ -281,7 +281,7 @@ class NuSMVEvidenceProcessor:
 
         # Either populate
         if isinstance(actions, list):
-            if not len(actions):
+            if not len(actions) or not actions[0]:
                 actions = self.get_model_actions()
             elif isinstance(actions[0], str):
                 actions = [pn.model.Identifier(a) for a in actions]
