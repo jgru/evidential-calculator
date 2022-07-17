@@ -30,8 +30,8 @@ The manufacturer also noted that
 \begin{enumerate}[resume]
 4. The printer can accept only one print job from each user at a time.
 5. Initially, all directory entries are
-  empty." 
-#+end_quote 
+  empty."
+#+end_quote
 -- (Gladyshev & Patel, 2004, p. 4)
 
 A forensic examination of the print job directory uncovers two
@@ -71,21 +71,21 @@ MODULE main
         is_printdir_1_usable   := (printdir_1 = Empty | printdir_1 = DelA | printdir_1 = DelB);
         is_printdir_2_usable   := (printdir_2 = Empty | printdir_2 = DelA | printdir_2 = DelB);
         is_job_a   := (printdir_1 = JobA) | (printdir_2 = JobA);
-        is_job_b   := (printdir_1 = JobB) | (printdir_2 = JobB);  
+        is_job_b   := (printdir_1 = JobB) | (printdir_2 = JobB);
     ASSIGN
-        next(printdir_1) := 
+        next(printdir_1) :=
            case
                next(action) = add_job_a:
                  case
                    is_printdir_1_usable : JobA;
                    TRUE: printdir_1;
                  esac;
-               next(action) = add_job_b: 
+               next(action) = add_job_b:
                  case
                    is_printdir_1_usable : JobB;
                    TRUE: printdir_1;
                  esac;
-               next(action) = take_job: 
+               next(action) = take_job:
                  case
                    !is_printdir_1_usable :
                      case
@@ -96,19 +96,19 @@ MODULE main
                  esac;
               TRUE: printdir_1;
           esac;
-        next(printdir_2) := 
+        next(printdir_2) :=
            case
                next(action) = add_job_a:
                  case
                    !is_printdir_1_usable & is_printdir_2_usable : JobA;
                    TRUE: printdir_2;
                  esac;
-               next(action) = add_job_b: 
+               next(action) = add_job_b:
                  case
                    !is_printdir_1_usable & is_printdir_2_usable : JobB;
                    TRUE: printdir_2;
                  esac;
-               next(action) = take_job: 
+               next(action) = take_job:
                  case
                   is_printdir_1_usable & !is_printdir_2_usable :
                      case
@@ -117,7 +117,7 @@ MODULE main
                      esac;
                    TRUE: printdir_2;
                  esac;
-               TRUE: printdir_2; 
+               TRUE: printdir_2;
           esac;
 
     TRANS
@@ -150,7 +150,7 @@ Afterwards, start the Python-session and import the
 #+begin_src python :results output :var path="../"
 import sys
 from pathlib import Path
-import pynusmv as pn 
+import pynusmv as pn
 
 # Make custom modules accessible for Python env
 base = Path(path)
@@ -176,11 +176,12 @@ we are interested in "sufficient" evidence.
 
 #+begin_src python :var model_data=ex-acme-smv :results output verbatim
 # We are interested in Alice submitting a print job
-action = "add_job_a" 
+action = "add_job_a"
+_type = "sufficient"
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for that action
-    se = ep.calc_set(action, "sufficient")
+    se = ep.calc_set(_type, action)
     # Output evidence sets as table
     print(se)
 #+end_src
@@ -201,18 +202,18 @@ human-oriented form has be translated to the following form...
 {printdir_2: DelB}
 #+end_example
 
-...and read as a list of dicts. 
+...and read as a list of dicts.
 
 #+begin_src python :var e_obs_raw=e-obs :results output verbatim
 entries = [l.strip() for l in e_obs_raw.split("\n") if l]
-e_obs = dict((pn.model.Identifier(a.strip()), pn.model.Identifier(b.strip())) 
-                     for a, b in (e[1:-1].split(':') 
-                                  for e in entries))  
-print(evidence_dict)
+e_obs = dict((pn.model.Identifier(a.strip()), pn.model.Identifier(b.strip()))
+                     for a, b in (e[1:-1].split(':')
+                                  for e in entries))
+print(e_obs)
 #+end_src
 
 #+RESULTS:
-: {'printdir_1': 'DelB', 'printdir_2': 'DelB'}
+: {printdir_1: DelB, printdir_2: DelB}
 
 
 Having the observed evidence avaiable as such an =evidence_dict=, we
@@ -231,11 +232,11 @@ for s in se[action]:
 
 #+RESULTS: check-s-in-e-obs-py
 : Found sufficient evidence for add_job_a:
-: 	{printdir_2: DelB}
+:       {printdir_2: DelB}
 
 * Solution Using Our Prototypical CLI-Tool
 :PROPERTIES:
-:header-args: :noweb yes :results output table 
+:header-args: :noweb yes :results output table
 :END:
 In this section, we demonstrate how our prototypical tool
 =calc_evidence= providing a CLI-interface can be used to solve the
@@ -260,7 +261,6 @@ echo $model | python3 ../src/calc_evidence.py -o csv -a "add_job_a" -t "sufficie
 : add_job_a,{printdir_2: JobB}
 : add_job_a,{printdir_2: DelA}
 : add_job_a,{printdir_2: DelB}
-
 
 ** Answering the Investigative Question
 In order to answer the investigative question, we need to check if an
@@ -308,4 +308,3 @@ echo $evidence_obs | grep -o -E $pattern
 
 Since there is such an element \(s \in SE{}\) (={printdir_2: DelB}=)
 that exists in \(E_{obs}\), Alice must have printed at least once.
-

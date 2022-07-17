@@ -78,11 +78,12 @@ MODULE main
 :END:
 ** Action-induced Evidence
 #+begin_src python
-actions = None  # Consider all actions in the model
+is_compound = False  # Look at each variable individually
+actions = []  # Consider all actions in the model
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(actions, sbe.EvidenceType.action_induced)
+    es = ep.calc_set(sbe.EvidenceType.action_induced, actions, is_compound)
     # Output evidence sets as table
     utils.output_evidence_set(es, "org")
 #print(es)
@@ -102,11 +103,11 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 ** Sufficient Evidence
 #+begin_src python
 is_compound = False  # Look at each variable individually
-actions = None  # Consider all actions in the model
+actions = []  # Consider all actions in the model
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(actions, sbe.EvidenceType.sufficient, False)
+    es = ep.calc_set(sbe.EvidenceType.sufficient, actions, is_compound)
     # Output evidence sets as table
     utils.output_evidence_set(es, "org")
 #print(es)
@@ -129,7 +130,7 @@ actions = None  # Consider all actions in the model
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(actions, sbe.EvidenceType.necessary)
+    es = ep.calc_set(sbe.EvidenceType.necessary, actions, is_compound)
     # Output evidence sets as table
     utils.output_evidence_set(es, "org")
 #print(es)
