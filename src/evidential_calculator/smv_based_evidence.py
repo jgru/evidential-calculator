@@ -185,7 +185,7 @@ class NuSMVEvidenceProcessor:
     @staticmethod
     def check_action_induced_trace(
         action: pn.model.Identifier,
-        d: dict[pn.model.Identifier, pn.model.Expression],
+        d: dict[pn.model.Identifier, pn.model.SimpleType],
         action_name: str = "action",
     ):
         """
@@ -211,7 +211,7 @@ class NuSMVEvidenceProcessor:
     @staticmethod
     def check_necessary_trace(
         action: pn.model.Identifier,
-        d: dict[pn.model.Identifier, pn.model.Expression],
+        d: dict[pn.model.Identifier, pn.model.SimpleType],
         action_name: str = ACTION_NAME,
     ):
         assert (
@@ -232,7 +232,7 @@ class NuSMVEvidenceProcessor:
     @staticmethod
     def check_sufficient_trace(
         action: pn.model.Identifier,
-        d: dict,
+        d: dict[pn.model.Identifier, pn.model.SimpleType],
         action_name: str = ACTION_NAME,
     ):
         """ """
