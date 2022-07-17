@@ -11,6 +11,14 @@ import pynusmv as pn
 
 
 class EvidenceType(Enum):
+    """
+    Defines the classes of evidence
+
+    necessary: X(G(A_i -> E))
+    sufficient: X (A_i) V !E
+    action-induced: X (G ((A_i -> E) & Y (E -> O A_i)))
+    """
+
     necessary = "necessary"
     sufficient = "sufficient"
     action_induced = "action-induced"
@@ -19,6 +27,12 @@ class EvidenceType(Enum):
         return str.__str__(self)
 
     def normalize(_type: Union[Enum, str]):
+        """
+        Ensures that _type is converted to an EvidenceType-object
+        if necessary.
+
+        Returns the corresponding EvidenceType
+        """
         if isinstance(_type, EvidenceType):
             return _type
         else:
@@ -33,9 +47,24 @@ class EvidenceType(Enum):
 
 
 class NuSMVEvidenceProcessor:
+    """
+
+    Houses the necessary functionality to process a model and
+    extract actions and variables, in order to calculate sets of
+    evidence.
+
+    """
+
+    # Identifier used by the SMV-model to denote
+    # the encoding of the action
     ACTION_NAME = "action"
 
     def __init__(self, model):
+        """
+        Initializes the processor. To do so, the model data is stored
+        in its string version and as well in a parsed version for
+        later use.
+        """
         self.model_data = model
         self.parsed_model = pn.parser.parseAllString(
             pn.parser.module, self.model_data
@@ -43,6 +72,9 @@ class NuSMVEvidenceProcessor:
         self.is_initialized = False
 
     def __enter__(self):
+        """
+        Establishes a context manager and initializes pynusmv.
+        """
         self.is_initialized = self.setup(self.model_data)
 
         assert (
@@ -52,12 +84,15 @@ class NuSMVEvidenceProcessor:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exits the context manager and tears down pynusmv.
+        """
         self.deinit()
 
     @classmethod
     def setup(cls, model: str) -> bool:
         """
-        Inititializes NuSMV and loads the model to check
+        Inititializes NuSMV and loads the model to check.
         """
         pn.init.init_nusmv()
         t0 = time.time()
@@ -72,8 +107,8 @@ class NuSMVEvidenceProcessor:
             pn.exception.NuSMVModelAlreadyFlattenedError,
         ) as e:
             if isinstance(e, pn.exception.NuSMVModelAlreadyFlattenedError):
+                # NuSMVModelAlreadyFlattenedError is irrelevant
                 pass
-                # print(f"Model already flat {e}")
             else:
                 print(
                     f"NuSMV error loading or computing error {e}",
@@ -81,20 +116,25 @@ class NuSMVEvidenceProcessor:
                 )
                 return False
 
-        # print(f"Loading model took {time.time()-t0} secs", file=sys.stderr)
-
         return True
 
     def deinit(self):
+        """
+        Quits and cleans up NuSMV.
+        """
         pn.init.deinit_nusmv()
         self.is_initialized = False
 
     def get_model_vars(self, action: str = ACTION_NAME) -> OrderedDict:
-        # Alternative implementation:
-        # fh = pn.glob.flat_hierarchy()
-        # Operate on strings due to PyNuSMV implementation specifics
-        # (Throws segfault on _vars.remove(pn.model.Identifier(action))
-        # _vars = [str(v) for v in fh.variables]
+        """
+        Retrieves all variables in the model. The variable that
+        encodes the action is ignored. (Alternative way would be to
+        use the flat hierarchy (pn.glob.flat_hierarchy())
+
+        Returns an OrderedDict of pn.model.Identifiers as keys and
+        pn.model.SimpleTypes as values.
+
+        """
         _vars = copy.deepcopy(self.parsed_model.VAR)
 
         if pn.model.Identifier(action) in _vars.keys():
@@ -102,17 +142,34 @@ class NuSMVEvidenceProcessor:
 
         return _vars
 
-    def get_model_actions(self, action: str = ACTION_NAME) -> list:
+    def get_model_actions(
+        self, action: str = ACTION_NAME
+    ) -> list[pn.model.Identifier]:
+        """
+        Retrieves the valuation of the model's variable that encodes
+        the action. This variable should be a symbolic enum (of type
+        pn.model.Scalar).
+
+        Returns a list of pn.model.Identifiers, e.g., [a0, a1,
+        unconstrain].
+        """
         actions = []
         _vars = self.parsed_model.VAR
 
         if pn.model.Identifier(action) in _vars.keys():
-            actions = _vars[pn.model.Identifier(action)].values
+            actions = list(_vars[pn.model.Identifier(action)].values)
 
         return actions
 
     @classmethod
     def evidence_type_to_func(cls, _type: EvidenceType) -> Callable:
+        """
+        Maps the EvidenceType (SE, NE, AE) to the corresponding
+        calculation function.
+
+        Returns the function needed to calculate the EvidenceType
+        specified by the parameter _type.
+        """
         if _type == EvidenceType.necessary:
             return cls.check_necessary_trace
         elif _type == EvidenceType.sufficient:
@@ -128,11 +185,21 @@ class NuSMVEvidenceProcessor:
         self,
         _type: Union[EvidenceType, str],
         actions: Union[pn.model.Identifier, list[pn.model.Identifier]] = None,
-        compound: bool = False,
-    ):
+        is_compound: bool = False,
+    ) -> dict[str, dict[pn.model.Identifier, pn.model.Identifier]]:
         """
-        Calucates the requested set of evidence. The EvidenceType
+        Calucates the requested set of evidence.
+
         _type specifies which kind of evidence to calculate.
+
+        actions might be a single action (specified as str or
+        pn.model.Identifier or a list of those types)
+
+        is_compound specifies if only single variable or combinations
+        of those should be considered.
+
+        Returns a dict of dicts where the respective action is used as key
+        for the respective dict of evidence.
 
         """
         _type = EvidenceType.normalize(_type)
@@ -160,6 +227,13 @@ class NuSMVEvidenceProcessor:
         return results
 
     def calc_set_compound(self, actions: list[pn.model.Identifier]):
+        """
+        Specialization of the calc_set()-method for the
+        calculation of compound traces.
+
+        Based on DeMorgans Law:
+        (X A) V (({var1} != {val1}) | ({var} != {val}) | ...)
+        """
         results = {}
         _vars = self.get_model_vars()
 
@@ -179,6 +253,7 @@ class NuSMVEvidenceProcessor:
                 for c in combos:
                     if self.check_sufficient_trace(action, c):
                         result.append(c)
+
             results[str(action)] = result
         return results
 
@@ -192,7 +267,7 @@ class NuSMVEvidenceProcessor:
         Checks, wether setting of timestamp type ts of filepath is
         action-induced evidence of action
 
-        FIXME: Check if this works with
+        FIXME: Check if this works with symbolic enums
         """
         assert len(d) == 1, "AE can't handle compound traces"
 
