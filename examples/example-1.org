@@ -2,13 +2,13 @@
 #+PROPERTY: header-args :session ex1
 * Setup
 Activate the virtual environment =venv=
-#+begin_src elisp :results silent :var path="../../"
+#+begin_src elisp :results silent :var path="../"
 (pyvenv-activate (concat path "/venv"))
 #+end_src
 
 Import the =evidental_calculator=-module:
 #+name: prep
-#+begin_src python :results output :var path="../../"
+#+begin_src python :results output :var path="../"
 import sys
 from pathlib import Path
 

@@ -1,19 +1,19 @@
-#+title: Literate Calculation of Evidence Sets for Example 2 
+#+title: Literate Calculation of Evidence Sets for Example 2
 #+PROPERTY: header-args :session ex2
 
 This example considers a model that houses unreachable action. This
 action covers the actual traces.
 
-* Setup 
+* Setup
 
 Activate the virtual environment =venv=
-#+begin_src elisp :results silent :var path="../../"
+#+begin_src elisp :results silent :var path="../"
 (pyvenv-activate (concat path "/venv"))
 #+end_src
 
 Import the =evidental_calculator=-module:
 #+name: prep
-#+begin_src python :results output :var path="../../" 
+#+begin_src python :results output :var path="../"
 import sys
 from pathlib import Path
 
@@ -76,8 +76,8 @@ MODULE main
 :PROPERTIES:
 :header-args+: :results output table raw :var model_data=ex2-smv
 :END:
-** Action-induced Evidence 
-#+begin_src python 
+** Action-induced Evidence
+#+begin_src python
 actions = None  # Consider all actions in the model
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
@@ -100,7 +100,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 
 ** Sufficient Evidence
-#+begin_src python 
+#+begin_src python
 is_compound = False  # Look at each variable individually
 actions = None  # Consider all actions in the model
 
@@ -122,8 +122,8 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Evidence of unconstrain |             |
 |-------------------------+-------------|
-** Necessary Evidence 
-#+begin_src python 
+** Necessary Evidence
+#+begin_src python
 is_compound = False  # Look at each variable individually
 actions = None  # Consider all actions in the model
 
