@@ -126,17 +126,18 @@ class NuSMVEvidenceProcessor:
 
     def calc_set(
         self,
-        action: pn.model.Identifier,
         _type: Union[EvidenceType, str],
+        actions: Union[pn.model.Identifier, list[pn.model.Identifier]] = None,
         compound: bool = False,
     ):
+        """
+        Calucates the requested set of evidence. The EvidenceType
+        _type specifies which kind of evidence to calculate.
+
+        """
         _type = EvidenceType.normalize(_type)
 
-        # Either calculate evidence set for a single action
-        if action:
-            actions = [action]
-        else:  # Or for all actions in the model
-            actions = self.get_model_actions()
+        actions = self.check_actions(actions)
 
         # Calculate compound SE differently
         if _type == EvidenceType.sufficient and compound:
@@ -264,6 +265,36 @@ class NuSMVEvidenceProcessor:
 
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s2))
         return pn.mc.check_ltl_spec(spec)
+
+    def check_actions(
+        self, actions: Union[pn.model.Identifier, list[pn.model.Identifier]]
+    ):
+        """
+        Sanitizes the received action or actions.
+        """
+        model_actions = self.get_model_actions()
+
+        # Ensure actions is a list
+        if isinstance(actions, str) or isinstance(
+            actions, pn.model.Identifier
+        ):
+            actions = [actions]
+
+        # Either populate
+        if isinstance(actions, list):
+            if not len(actions):
+                actions = self.get_model_actions()
+            elif isinstance(actions[0], str):
+                actions = [pn.model.Identifier(a) for a in actions]
+                for a in actions:
+                    if a not in model_actions:
+                        raise ValueError(
+                            f"Specified action {a} is not existing in the model."
+                        )
+        else:
+            actions = self.get_model_actions()
+
+        return actions
 
     @staticmethod
     def get_values(valuation: pn.model.SimpleType):
