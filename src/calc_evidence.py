@@ -11,6 +11,12 @@ from evidential_calculator.utils import *
 
 
 def main():
+    """Entry point for the CLI-tool
+
+    Parses the CLI-arguments. constructs a NuSMVEvidencerocessor and
+    initiates the calculation of evidence sets.
+
+    """
     args = parse_args()
 
     model_data = None
@@ -33,6 +39,7 @@ def main():
 
 
 def parse_args():
+    """Parses CLI-arguments with the help of argparse"""
     parser = argparse.ArgumentParser(description="")
 
     parser.add_argument(
