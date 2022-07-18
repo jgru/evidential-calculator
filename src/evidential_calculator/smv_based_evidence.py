@@ -324,7 +324,7 @@ class NuSMVEvidenceProcessor:
         s1 = f"X (G({action_name} = {action} ->  (G {var} = {val})))"
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
         res = pn.mc.check_ltl_spec(spec)
-        # return res
+
         # Early exit since the trace is definitely not
         if not res:
             return res
