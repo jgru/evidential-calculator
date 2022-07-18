@@ -409,7 +409,7 @@ class NuSMVEvidenceProcessor:
         return valuation.values
 
     @staticmethod
-    def powerset(set_):
+    def powerset(_set):
         """Constructs a powerset
 
         E.g., powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)
@@ -419,7 +419,7 @@ class NuSMVEvidenceProcessor:
 
         """
         return chain.from_iterable(
-            map(partial(combinations, set_), range(len(set_) + 1))
+            map(partial(combinations, _set), range(len(_set) + 1))
         )
 
     @staticmethod
