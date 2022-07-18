@@ -221,8 +221,9 @@ class NuSMVEvidenceProcessor:
         """Specialization of the calc_set()-method for the
         calculation of compound traces.
 
-        Based on DeMorgans Law, the following formula is used: (X A) V
-        (({var1} != {val1}) | ({var} != {val}) | ...)
+        Based on DeMorgan's law, the following formula is used:
+        (X action = a) V (({var1} != {val1}) | ({var} != {val}) | ...)
+
 
         The calculation itself is conducted as follows
         1. Retrieve the model vars
@@ -336,7 +337,15 @@ class NuSMVEvidenceProcessor:
         d: dict[pn.model.Identifier, pn.model.SimpleType],
         action_name: str = ACTION_NAME,
     ):
-        """ """
+        """Checks whether the variable/value-combination(s) is/are
+        part of the necessary evidence of the target action. This is
+        accomplished by using the following LTL-formula:
+
+        (X action = a) V ({var1} != {val1})
+        or
+        (X action = a) V (({var1} != {val1}) | ({var2} != {val2}) | ...)
+
+        """
         s1 = (
             f"(X {action_name} = {action}) V ("
             + " | ".join([f"{var} != {val}" for var, val in d.items()])
@@ -355,6 +364,19 @@ class NuSMVEvidenceProcessor:
 
     @staticmethod
     def is_unreachable(d):
+        """Checks whether a variable is actually changed.
+
+        If the model contains constants, you need to check the
+        following formula as well
+
+        (G(var = FALSE))  <- this should yield False
+
+        This ensures that the variable is actually set/changed
+        somewhere. In case of boolean variabls this means that it does
+        not always remain FALSE. Please note, that the conjunct of
+        those two formulae is not the same as checking them in order.
+
+        """
         # Checks, if the variables are actually modified at some point
         s2 = (
             "G("
