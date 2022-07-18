@@ -157,6 +157,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Evidence of unconstrain |             |
 |-------------------------+-------------|
+
 ** Necessary Evidence
 #+begin_src python
 is_compound = False  # Look at each variable individually

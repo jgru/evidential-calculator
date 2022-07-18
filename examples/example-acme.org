@@ -190,6 +190,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 : {'add_job_a': [{printdir_1: JobA}, {printdir_1: DelA}, {printdir_2: JobA}, {printdir_2: JobB}, {printdir_2: DelA}, {printdir_2: DelB}]}
 
 
+
 ** Answering the Investigative Question
 
 Since we operated on the NuSMV-model presented in [[ex-acme-smv]], the
@@ -232,7 +233,7 @@ for s in se[action]:
 
 #+RESULTS: check-s-in-e-obs-py
 : Found sufficient evidence for add_job_a:
-:       {printdir_2: DelB}
+: 	{printdir_2: DelB}
 
 * Solution Using Our Prototypical CLI-Tool
 :PROPERTIES:
@@ -292,6 +293,8 @@ echo $PATTERN
 #+RESULTS: se-regex
 (\{printdir_1: JobA\}|\{printdir_1: DelA\}|\{printdir_2: JobA\}|\{printdir_2: JobB\}|\{printdir_2: DelA\}|\{printdir_2: DelB\})
 
+(\{printdir_1: JobA\}|\{printdir_1: DelA\}|\{printdir_2: JobA\}|\{printdir_2: JobB\}|\{printdir_2: DelA\}|\{printdir_2: DelB\})
+
 Again, we have to operate on the machine-readable version of the
 observed evidence as it was already presented in [[e-obs]]. Based on this
 representation, we check whether there exists an element in the SE-set
@@ -303,8 +306,9 @@ SE(add_job_a, M) \mid s \subseteq E_{obs}\]
 echo $evidence_obs | grep -o -E $pattern
 #+end_src
 
-#+RESULTS:
+#+RESULTS: check-s-in-e-obs
 : {printdir_2: DelB}
+
 
 Since there is such an element \(s \in SE{}\) (={printdir_2: DelB}=)
 that exists in \(E_{obs}\), Alice must have printed at least once.
