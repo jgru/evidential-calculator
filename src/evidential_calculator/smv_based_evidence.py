@@ -279,8 +279,12 @@ class NuSMVEvidenceProcessor:
 
         X (G ((A -> E) & Y (E -> O A)))
 
-        If it yields true, the evidence E is action-induced evidence
-        meaning that it is direct effect of the target action A.
+        The consideration of the previous state (Y) is necessary to
+        handle the case when the evidence was already there before.
+
+        If the a/m formula yields true, the evidence E is
+        action-induced evidence meaning that it is direct effect of
+        the target action A.
 
         FIXME: Check if this works with symbolic enums
 
