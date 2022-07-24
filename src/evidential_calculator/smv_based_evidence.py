@@ -238,6 +238,10 @@ class NuSMVEvidenceProcessor:
         6. Eventually, store the variable/value-combination, if
            the formula holds
 
+        *Note:* This could be optimized by discarding checks of
+        compound traces containing variables that were earlier
+        identified to be sufficient.
+
         """
         results = {}
         _vars = self.get_model_vars()
@@ -256,7 +260,6 @@ class NuSMVEvidenceProcessor:
                     for comb in product(*a)
                     if len(comb)
                 ]
-                result = []
 
                 # Pass the combinations to the check-functions,
                 # which constructs the LTL-formula and queries the MC
