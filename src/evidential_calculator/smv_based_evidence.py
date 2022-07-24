@@ -289,7 +289,10 @@ class NuSMVEvidenceProcessor:
         action-induced evidence meaning that it is direct effect of
         the target action A.
 
-        FIXME: Check if this works with symbolic enums
+        *Note:* The current implementation is oversimplified.
+        Assignments to a value of a another variable would lead to
+        evidence formed by an implication, which cannot be handled by
+        the current implementation.
 
         """
         assert len(d) == 1, "AE can't handle compound traces"
