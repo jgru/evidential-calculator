@@ -224,8 +224,8 @@ class NuSMVEvidenceProcessor:
         Based on DeMorgan's law, the following formula is used:
         (X action = a) V (({var1} != {val1}) | ({var} != {val}) | ...)
 
+        The calculation itself is conducted as follows:
 
-        The calculation itself is conducted as follows
         1. Retrieve the model vars
         2. Form the powerdict
            (e.g., [{}, {x:[...]}, {y:[...]}, {x:[...], y:[...]},...])
