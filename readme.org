@@ -3,7 +3,7 @@
 This repository contains a prototypical implementation of a tool that
 calculates the evidence sets of different classes of evidence.
 
-If you just want to quickly try the tool, you may use the provided a
+If you just want to quickly try the tool, you may use the provided
 Dockerfile (see [[here]]).
 
 * Installation
