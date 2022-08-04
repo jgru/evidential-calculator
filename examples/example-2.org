@@ -20,14 +20,14 @@ from pathlib import Path
 # Make custom modules accessible for Python env
 base = Path(path)
 sys.path.append(str(base / "src"))
-import evidential_calculator.smv_based_evidence as sbe
-import evidential_calculator.utils as utils
+import evidence_set_calculation.smv_based_evidence as sbe
+import evidence_set_calculation.utils as utils
 
-print("Successfully imported evidential_calculator-module")
+print("Successfully imported evidence_set_calculation-module")
 #+end_src
 
 #+RESULTS: prep
-: Successfully imported evidential_calculator-module
+: Successfully imported evidence_set_calculation-module
 
 * Model Specification
 ** GCL Specification

@@ -18,7 +18,7 @@ sudo apt install python3 python3-dev libpython3-dev python3-pip
 #+end_src
 
 ** Install Module Via Python's Package Manager =pip=
-In case you want to install the module named =evidential_calculator=,
+In case you want to install the module named =evidence_set_calculation=,
 you could run
 
 #+begin_src shell
@@ -70,7 +70,7 @@ calculation to that action by supplying =-a=, like it is illustrated
 below:
 
 #+begin_src shell
-cd src/evidential_calculator
+cd src/evidence_set_calculation
 python3 calc_evidence.py -a "add_job_b" -t "sufficient" ../../examples/acme-model.smv
 #+end_src
 

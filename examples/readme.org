@@ -21,7 +21,7 @@ Second, create Python virtual environment called =venv= by running:
 python3.9 -m venv venv 
 source venv/bin/activate
 cd $BP/deps/pynusmv && pip3 install .
-# Eventually, install the evidential_calculator-package
+# Eventually, install the evidence_set_calculation-package
 # cd $BP && pip3 install .
 #+end_src
 

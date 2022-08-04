@@ -6,8 +6,8 @@ __version__ = "0.0.1"
 import argparse
 import sys
 
-from evidential_calculator.smv_based_evidence import *
-from evidential_calculator.utils import *
+from evidence_set_calculation.smv_based_evidence import *
+from evidence_set_calculation.utils import *
 
 
 def main():
