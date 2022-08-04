@@ -13,7 +13,7 @@ from evidential_calculator.utils import *
 def main():
     """Entry point for the CLI-tool
 
-    Parses the CLI-arguments. constructs a NuSMVEvidencerocessor and
+    Parses the CLI-arguments. constructs a NuSMVEvidenceProcessor and
     initiates the calculation of evidence sets.
 
     """
