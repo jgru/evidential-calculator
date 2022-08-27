@@ -40,4 +40,4 @@ COPY . evidential-calculator
 RUN cd evidential-calculator && pip3 install .
 
 WORKDIR /data
-ENTRYPOINT ["calc-evidence"]
+CMD ["calc_evidence.py"]

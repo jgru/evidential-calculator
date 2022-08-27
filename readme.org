@@ -51,7 +51,7 @@ containers =/data=-directory and providing the exemplary model to the
 entrypoint:
 
 #+begin_src shell
-docker run -it -v $(pwd):/data evic examples/models/acme-model.smv
+docker run -it -v $(pwd):/data evic calc_evidence.py /data/examples/models/acme-model.smv
 #+end_src
 
 ** General Usage
