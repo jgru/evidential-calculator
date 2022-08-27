@@ -62,7 +62,7 @@ the class of evidence that should be calculated via =-t= (either
 "sufficient" or "necessary" evidence).
 
 #+begin_src shell
-cat ../../examples/acme-model.smv | python3 calc_evidence.py -t "sufficient"
+cat examples/models/acme-model.smv | python3 src/calc_evidence.py -t "sufficient"
 #+end_src
 
 If you are only interested in a specific action, you could restrict the
@@ -70,8 +70,7 @@ calculation to that action by supplying =-a=, like it is illustrated
 below:
 
 #+begin_src shell
-cd src/evidence_set_calculation
-python3 calc_evidence.py -a "add_job_b" -t "sufficient" ../../examples/acme-model.smv
+python3 src/calc_evidence.py -a "add_job_b" -t "sufficient" examples/models/acme-model.smv
 #+end_src
 
 For a full reference of the CLI, see the manual page below, or run
