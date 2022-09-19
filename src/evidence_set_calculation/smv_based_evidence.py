@@ -285,9 +285,12 @@ class NuSMVEvidenceProcessor:
         the action-induced evidence set by applying the following
         LTL-formula:
 
-        not AE &
-        ()[] (sigma -> AE) &
-        [] /\_{sigma' in Sigma'} not AE -> () (sigma' -> not EA)
+        ! AE &
+        X G (sigma -> AE) &
+        G /\_{sigma' in Sigma'} ! AE -> X (sigma' -> not EA)
+
+        Here, the big conjunction symbol expresses a finite
+        conjunction over all actions \($sigma'\) other than \(\sigma\)
 
         If the a/m formula yields true, the evidence E is
         action-induced evidence meaning that it is direct effect of
