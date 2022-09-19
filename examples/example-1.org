@@ -125,7 +125,6 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 
 
-
 ** Sufficient Evidence
 #+begin_src python
 is_compound = False  # Look at each variable individually
