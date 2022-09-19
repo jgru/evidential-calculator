@@ -97,7 +97,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Evidence of a2          |             |
 |-------------------------+-------------|
-| Evidence of unconstrain | {a: FALSE}  |
+| Evidence of unconstrain |             |
 |-------------------------+-------------|
 
 ** Sufficient Evidence
