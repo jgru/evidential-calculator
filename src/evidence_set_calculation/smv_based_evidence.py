@@ -6,6 +6,7 @@ from enum import Enum
 from functools import partial
 from itertools import chain, combinations, product
 from typing import OrderedDict, Union
+from functools import partial
 
 import pynusmv as pn
 
@@ -197,12 +198,15 @@ class NuSMVEvidenceProcessor:
 
         actions = self.check_actions(actions)
 
+        check_func = self.evidence_type_to_func(_type)
+        var_dict = self.get_model_vars()
+
         # Calculate compound SE differently
         if _type == EvidenceType.sufficient and is_compound:
             return self.calc_set_compound(actions)
 
-        check_func = self.evidence_type_to_func(_type)
-        var_dict = self.get_model_vars()
+        if _type == EvidenceType.action_induced:
+            check_func = partial(check_func, actions)
 
         results = {}
         for action in actions:
@@ -272,6 +276,7 @@ class NuSMVEvidenceProcessor:
 
     @staticmethod
     def check_action_induced_trace(
+        actions: list[pn.model.Identifier],
         action: pn.model.Identifier,
         d: dict[pn.model.Identifier, pn.model.SimpleType],
         action_name: str = "action",
@@ -280,10 +285,9 @@ class NuSMVEvidenceProcessor:
         the action-induced evidence set by applying the following
         LTL-formula:
 
-        X (G ((A -> E) & Y (E -> O A)))
-
-        The consideration of the previous state (Y) is necessary to
-        handle the case when the evidence was already there before.
+        not AE &
+        ()[] (sigma -> AE) &
+        [] /\_{sigma' in Sigma'} not AE -> () (sigma' -> not EA)
 
         If the a/m formula yields true, the evidence E is
         action-induced evidence meaning that it is direct effect of
@@ -298,13 +302,24 @@ class NuSMVEvidenceProcessor:
         assert len(d) == 1, "AE can't handle compound traces"
 
         ((var, val),) = d.items()
-        # X (G ((A -> E) & Y (E -> O A)))
-        s1 = f"X (G((({action_name} = {action}) -> ({var} = {val})) & Y(({var} = {val}) -> O ({action_name} = {action}))))"
+
+        s1 = (
+            f"({var} != {val}) & (X G (({action_name} = {action}) -> ({var} = {val}))) & G ("
+            + " & ".join(
+                [
+                    f"(({var} != {val}) -> X (({action_name} = {oa}) -> ({var} != {val}))) "
+                    for oa in actions
+                    if oa != action
+                ]
+            )
+            + ")"
+        )
+
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
         res = pn.mc.check_ltl_spec(spec)
 
-        # Early exit, since the trace is definitely not part of the
-        # evidence set
+        # Early exit, since the trace is definitely not part of the evidence set
+
         if not res:
             return res
 
