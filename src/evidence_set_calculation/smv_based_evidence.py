@@ -287,10 +287,11 @@ class NuSMVEvidenceProcessor:
 
         ! AE &
         X G (sigma -> AE) &
-        G /\_{sigma' in Sigma'} ! AE -> X (sigma' -> not EA)
+        G ^_{sigma' in Sigma'} ! AE -> X (sigma' -> not EA)
 
-        Here, the big conjunction symbol expresses a finite
-        conjunction over all actions \($sigma'\) other than \(\sigma\)
+        Here, the big conjunction symbol ^_ expresses a finite
+        conjunction over all other actions sigma' other than the
+        target action sigma
 
         If the a/m formula yields true, the evidence E is
         action-induced evidence meaning that it is direct effect of
@@ -310,9 +311,9 @@ class NuSMVEvidenceProcessor:
             f"({var} != {val}) & (X G (({action_name} = {action}) -> ({var} = {val}))) & G ("
             + " & ".join(
                 [
-                    f"(({var} != {val}) -> X (({action_name} = {oa}) -> ({var} != {val}))) "
-                    for oa in actions
-                    if oa != action
+                    f"(({var} != {val}) -> X (({action_name} = {other}) -> ({var} != {val}))) "
+                    for other in actions
+                    if other != action
                 ]
             )
             + ")"
