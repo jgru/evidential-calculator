@@ -369,7 +369,6 @@ class NuSMVEvidenceProcessor:
         if not releases:
             return releases
 
-        # FIXME, is this correct for _compound_ traces?
         return releases and not NuSMVEvidenceProcessor.is_unreachable(d)
 
     @staticmethod
