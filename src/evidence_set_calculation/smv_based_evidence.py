@@ -27,7 +27,7 @@ class EvidenceType(Enum):
     def __str__(self) -> str:
         return str.__str__(self)
 
-    def normalize(_type: Union[Enum, str]):
+    def normalize(_type: Union[Enum, str]) -> EvidenceType:
         """
         Ensures that _type is converted to an EvidenceType-object
         if necessary.
@@ -334,7 +334,7 @@ class NuSMVEvidenceProcessor:
         action: pn.model.Identifier,
         d: dict[pn.model.Identifier, pn.model.SimpleType],
         action_name: str = ACTION_NAME,
-    ):
+    ) -> bool:
         """Checks whether the variable/value-combination is part of
         the necessary evidence of the target action. This is
         accomplished by using the following LTL-formula:
@@ -365,7 +365,7 @@ class NuSMVEvidenceProcessor:
         action: pn.model.Identifier,
         d: dict[pn.model.Identifier, pn.model.SimpleType],
         action_name: str = ACTION_NAME,
-    ):
+    ) -> bool:
         """Checks whether the variable/value-combination(s) is/are
         part of the necessary evidence of the target action. This is
         accomplished by using the following LTL-formula:
@@ -391,7 +391,7 @@ class NuSMVEvidenceProcessor:
         return releases and not NuSMVEvidenceProcessor.is_unreachable(d)
 
     @staticmethod
-    def is_unreachable(d):
+    def is_unreachable(d: dict[pn.model.Identifier, pn.model.SimpleType]) -> bool:
         """Checks whether a variable is actually changed.
 
         If the model contains constants, you need to check the
