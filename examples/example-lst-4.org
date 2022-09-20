@@ -1,0 +1,381 @@
+#+title: Literate Calculation of Evidence Sets for Example 4
+#+PROPERTY: header-args :session ex-lst-4
+
+* Setup
+Activate the virtual environment =venv=
+#+begin_src elisp :results silent :var path="../"
+(pyvenv-activate (concat path "/venv"))
+#+end_src
+
+Import the =evidental_calculator=-module:
+#+name: prep
+#+begin_src python :results output :var path="../"
+import sys
+from pathlib import Path
+
+# Make custom modules accessible for Python env
+base = Path(path)
+sys.path.append(str(base / "src"))
+import evidence_set_calculation.smv_based_evidence as sbe
+import evidence_set_calculation.utils as utils
+
+print("Successfully imported evidence_set_calculation-module")
+#+end_src
+
+#+RESULTS: prep
+: Successfully imported evidence_set_calculation-module
+
+* Model Specification
+** GCL Specification
+#+name: ex-lst-4-gcl
+#+begin_example
+variables {a, b, c, d}
+init {a=0, b=0, c=0, d=0}
+actions
+        a0: TRUE-> a := 1;
+        a1: a=1 -> b := 1;
+        a2: b=1 -> c := 1 && d := 0;
+        a3: b=1 -> d := 1 && b := 0;
+#+end_example
+
+** SMV Specification
+#+name: ex-lst-4-smv
+#+begin_example
+MODULE main
+    VAR
+        action: {a0, a1, a2, a3, unconstrain};
+        a: boolean;
+        b: boolean;
+        c: boolean;
+        d: boolean;
+    INIT
+        a = FALSE
+    INIT
+        b = FALSE
+    INIT
+        c = FALSE
+    INIT
+        d = FALSE
+    INIT
+        action = unconstrain
+    ASSIGN
+        next(a) :=
+            case
+                next(action) = a0: TRUE;
+                TRUE: a;
+            esac;
+        next(b) :=
+            case
+                next(action) = a1: TRUE;
+                next(action) = a3: FALSE;
+                TRUE: b;
+            esac;
+        next(c) :=
+            case
+                next(action) = a2: TRUE;
+                TRUE: c;
+            esac;
+        next(d) :=
+            case
+                next(action) = a2: FALSE;
+                next(action) = a3: TRUE;
+                TRUE: d;
+            esac;
+    TRANS
+        next(action) = a0 -> TRUE
+    TRANS
+        next(action) = a1 -> a = TRUE
+    TRANS
+        next(action) = a2 -> b = TRUE
+    TRANS
+        next(action) = a3 -> b = TRUE
+    TRANS
+        next(action) = unconstrain -> TRUE
+#+end_example
+
+* Calculation of Evidence Sets
+:PROPERTIES:
+:header-args+: :results output table raw :var model_data=ex-lst-4-smv 
+:END:
+** Action-induced Evidence
+#+begin_src python
+is_compound = False  # Look at each variable individually
+actions = []  # Consider all actions
+
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for all actions
+    es = ep.calc_set(sbe.EvidenceType.action_induced, actions, is_compound)
+    # Output evidence sets as table
+    utils.output_evidence_set(es, "org")
+#print(es)
+#+end_src
+
+#+RESULTS:
+|-------------------------+-------------|
+| Desc                    | Assignments |
+|-------------------------+-------------|
+| Evidence of a0          | {a: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a1          | {b: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a2          | {c: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a3          | {d: TRUE}   |
+|-------------------------+-------------|
+| Evidence of unconstrain |             |
+|-------------------------+-------------|
+
+
+** Sufficient Evidence
+#+begin_src python
+is_compound = False  # Look at each variable individually
+actions = []
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for all actions
+    es = ep.calc_set(sbe.EvidenceType.sufficient, actions, is_compound)
+    # Output evidence sets as table
+    utils.output_evidence_set(es, "org")
+#print(es)
+#+end_src
+
+#+RESULTS:
+|-------------------------+-------------|
+| Desc                    | Assignments |
+|-------------------------+-------------|
+| Evidence of a0          | {a: TRUE}   |
+|                         | {b: TRUE}   |
+|                         | {c: TRUE}   |
+|                         | {d: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a1          | {b: TRUE}   |
+|                         | {c: TRUE}   |
+|                         | {d: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a2          | {c: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a3          | {d: TRUE}   |
+|-------------------------+-------------|
+| Evidence of unconstrain |             |
+|-------------------------+-------------|
+
+** Necessary Evidence
+#+begin_src python
+is_compound = False  # Look at each variable individually
+actions = []  # Consider all actions
+
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for all actions
+    es = ep.calc_set(sbe.EvidenceType.necessary, actions, is_compound)
+    # Output evidence sets as table
+    utils.output_evidence_set(es, "org")
+#+end_src
+
+#+RESULTS:
+|-------------------------+-------------|
+| Desc                    | Assignments |
+|-------------------------+-------------|
+| Evidence of a0          | {a: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a1          | {a: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a2          | {a: TRUE}   |
+|                         | {c: TRUE}   |
+|-------------------------+-------------|
+| Evidence of a3          | {a: TRUE}   |
+|-------------------------+-------------|
+| Evidence of unconstrain |             |
+|-------------------------+-------------|
+
+Since the necessary evidence presented above is very limited and
+incomplete, we now also consider the compound traces:
+
+#+begin_src python
+is_compound = True  # Look at each variable individually
+actions = []  # Consider all actions
+
+with sbe.NuSMVEvidenceProcessor(model_data) as ep:
+    # Calc sufficient evidence for all actions
+    es = ep.calc_set(sbe.EvidenceType.necessary, actions, is_compound)
+    # Output evidence sets as table
+    utils.output_evidence_set(es, "org")
+#+end_src
+
+#+RESULTS:
+|-------------------------+-----------------------------------------|
+| Desc                    | Assignments                             |
+|-------------------------+-----------------------------------------|
+| Evidence of a0          | {a: TRUE}                               |
+|                         | {a: TRUE, b: TRUE}                      |
+|                         | {a: TRUE, b: FALSE}                     |
+|                         | {a: TRUE, c: TRUE}                      |
+|                         | {a: TRUE, c: FALSE}                     |
+|                         | {a: TRUE, d: TRUE}                      |
+|                         | {a: TRUE, d: FALSE}                     |
+|                         | {a: TRUE, b: TRUE, c: TRUE}             |
+|                         | {a: TRUE, b: TRUE, c: FALSE}            |
+|                         | {a: TRUE, b: FALSE, c: TRUE}            |
+|                         | {a: TRUE, b: FALSE, c: FALSE}           |
+|                         | {a: TRUE, b: TRUE, d: TRUE}             |
+|                         | {a: TRUE, b: TRUE, d: FALSE}            |
+|                         | {a: TRUE, b: FALSE, d: TRUE}            |
+|                         | {a: TRUE, b: FALSE, d: FALSE}           |
+|                         | {a: TRUE, c: TRUE, d: TRUE}             |
+|                         | {a: TRUE, c: TRUE, d: FALSE}            |
+|                         | {a: TRUE, c: FALSE, d: TRUE}            |
+|                         | {a: TRUE, c: FALSE, d: FALSE}           |
+|                         | {b: TRUE, c: FALSE, d: TRUE}            |
+|                         | {a: TRUE, b: TRUE, c: TRUE, d: TRUE}    |
+|                         | {a: TRUE, b: TRUE, c: TRUE, d: FALSE}   |
+|                         | {a: TRUE, b: TRUE, c: FALSE, d: TRUE}   |
+|                         | {a: TRUE, b: TRUE, c: FALSE, d: FALSE}  |
+|                         | {a: TRUE, b: FALSE, c: TRUE, d: TRUE}   |
+|                         | {a: TRUE, b: FALSE, c: TRUE, d: FALSE}  |
+|                         | {a: TRUE, b: FALSE, c: FALSE, d: TRUE}  |
+|                         | {a: TRUE, b: FALSE, c: FALSE, d: FALSE} |
+|                         | {a: FALSE, b: TRUE, c: FALSE, d: TRUE}  |
+|-------------------------+-----------------------------------------|
+| Evidence of a1          | {a: TRUE}                               |
+|                         | {a: TRUE, b: TRUE}                      |
+|                         | {a: TRUE, b: FALSE}                     |
+|                         | {a: TRUE, c: TRUE}                      |
+|                         | {a: TRUE, c: FALSE}                     |
+|                         | {a: TRUE, d: TRUE}                      |
+|                         | {a: TRUE, d: FALSE}                     |
+|                         | {b: TRUE, d: TRUE}                      |
+|                         | {a: TRUE, b: TRUE, c: TRUE}             |
+|                         | {a: TRUE, b: TRUE, c: FALSE}            |
+|                         | {a: TRUE, b: FALSE, c: TRUE}            |
+|                         | {a: TRUE, b: FALSE, c: FALSE}           |
+|                         | {a: TRUE, b: TRUE, d: TRUE}             |
+|                         | {a: TRUE, b: TRUE, d: FALSE}            |
+|                         | {a: TRUE, b: FALSE, d: TRUE}            |
+|                         | {a: TRUE, b: FALSE, d: FALSE}           |
+|                         | {a: FALSE, b: TRUE, d: TRUE}            |
+|                         | {a: TRUE, c: TRUE, d: TRUE}             |
+|                         | {a: TRUE, c: TRUE, d: FALSE}            |
+|                         | {a: TRUE, c: FALSE, d: TRUE}            |
+|                         | {a: TRUE, c: FALSE, d: FALSE}           |
+|                         | {b: TRUE, c: TRUE, d: TRUE}             |
+|                         | {b: TRUE, c: FALSE, d: TRUE}            |
+|                         | {a: TRUE, b: TRUE, c: TRUE, d: TRUE}    |
+|                         | {a: TRUE, b: TRUE, c: TRUE, d: FALSE}   |
+|                         | {a: TRUE, b: TRUE, c: FALSE, d: TRUE}   |
+|                         | {a: TRUE, b: TRUE, c: FALSE, d: FALSE}  |
+|                         | {a: TRUE, b: FALSE, c: TRUE, d: TRUE}   |
+|                         | {a: TRUE, b: FALSE, c: TRUE, d: FALSE}  |
+|                         | {a: TRUE, b: FALSE, c: FALSE, d: TRUE}  |
+|                         | {a: TRUE, b: FALSE, c: FALSE, d: FALSE} |
+|                         | {a: FALSE, b: TRUE, c: TRUE, d: TRUE}   |
+|                         | {a: FALSE, b: TRUE, c: FALSE, d: TRUE}  |
+|-------------------------+-----------------------------------------|
+| Evidence of a2          | {a: TRUE}                               |
+|                         | {c: TRUE}                               |
+|                         | {a: TRUE, b: TRUE}                      |
+|                         | {a: TRUE, b: FALSE}                     |
+|                         | {a: TRUE, c: TRUE}                      |
+|                         | {a: TRUE, c: FALSE}                     |
+|                         | {a: FALSE, c: TRUE}                     |
+|                         | {a: TRUE, d: TRUE}                      |
+|                         | {a: TRUE, d: FALSE}                     |
+|                         | {b: TRUE, c: TRUE}                      |
+|                         | {b: FALSE, c: TRUE}                     |
+|                         | {b: TRUE, d: TRUE}                      |
+|                         | {c: TRUE, d: TRUE}                      |
+|                         | {c: TRUE, d: FALSE}                     |
+|                         | {a: TRUE, b: TRUE, c: TRUE}             |
+|                         | {a: TRUE, b: TRUE, c: FALSE}            |
+|                         | {a: TRUE, b: FALSE, c: TRUE}            |
+|                         | {a: TRUE, b: FALSE, c: FALSE}           |
+|                         | {a: FALSE, b: TRUE, c: TRUE}            |
+|                         | {a: FALSE, b: FALSE, c: TRUE}           |
+|                         | {a: TRUE, b: TRUE, d: TRUE}             |
+|                         | {a: TRUE, b: TRUE, d: FALSE}            |
+|                         | {a: TRUE, b: FALSE, d: TRUE}            |
+|                         | {a: TRUE, b: FALSE, d: FALSE}           |
+|                         | {a: FALSE, b: TRUE, d: TRUE}            |
+|                         | {a: TRUE, c: TRUE, d: TRUE}             |
+|                         | {a: TRUE, c: TRUE, d: FALSE}            |
+|                         | {a: TRUE, c: FALSE, d: TRUE}            |
+|                         | {a: TRUE, c: FALSE, d: FALSE}           |
+|                         | {a: FALSE, c: TRUE, d: TRUE}            |
+|                         | {a: FALSE, c: TRUE, d: FALSE}           |
+|                         | {b: TRUE, c: TRUE, d: TRUE}             |
+|                         | {b: TRUE, c: TRUE, d: FALSE}            |
+|                         | {b: TRUE, c: FALSE, d: TRUE}            |
+|                         | {b: FALSE, c: TRUE, d: TRUE}            |
+|                         | {b: FALSE, c: TRUE, d: FALSE}           |
+|                         | {a: TRUE, b: TRUE, c: TRUE, d: TRUE}    |
+|                         | {a: TRUE, b: TRUE, c: TRUE, d: FALSE}   |
+|                         | {a: TRUE, b: TRUE, c: FALSE, d: TRUE}   |
+|                         | {a: TRUE, b: TRUE, c: FALSE, d: FALSE}  |
+|                         | {a: TRUE, b: FALSE, c: TRUE, d: TRUE}   |
+|                         | {a: TRUE, b: FALSE, c: TRUE, d: FALSE}  |
+|                         | {a: TRUE, b: FALSE, c: FALSE, d: TRUE}  |
+|                         | {a: TRUE, b: FALSE, c: FALSE, d: FALSE} |
+|                         | {a: FALSE, b: TRUE, c: TRUE, d: TRUE}   |
+|                         | {a: FALSE, b: TRUE, c: TRUE, d: FALSE}  |
+|                         | {a: FALSE, b: TRUE, c: FALSE, d: TRUE}  |
+|                         | {a: FALSE, b: FALSE, c: TRUE, d: TRUE}  |
+|                         | {a: FALSE, b: FALSE, c: TRUE, d: FALSE} |
+|-------------------------+-----------------------------------------|
+| Evidence of a3          | {a: TRUE}                               |
+|                         | {a: TRUE, b: TRUE}                      |
+|                         | {a: TRUE, b: FALSE}                     |
+|                         | {a: TRUE, c: TRUE}                      |
+|                         | {a: TRUE, c: FALSE}                     |
+|                         | {a: TRUE, d: TRUE}                      |
+|                         | {a: TRUE, d: FALSE}                     |
+|                         | {b: TRUE, d: TRUE}                      |
+|                         | {c: TRUE, d: TRUE}                      |
+|                         | {a: TRUE, b: TRUE, c: TRUE}             |
+|                         | {a: TRUE, b: TRUE, c: FALSE}            |
+|                         | {a: TRUE, b: FALSE, c: TRUE}            |
+|                         | {a: TRUE, b: FALSE, c: FALSE}           |
+|                         | {a: TRUE, b: TRUE, d: TRUE}             |
+|                         | {a: TRUE, b: TRUE, d: FALSE}            |
+|                         | {a: TRUE, b: FALSE, d: TRUE}            |
+|                         | {a: TRUE, b: FALSE, d: FALSE}           |
+|                         | {a: FALSE, b: TRUE, d: TRUE}            |
+|                         | {a: TRUE, c: TRUE, d: TRUE}             |
+|                         | {a: TRUE, c: TRUE, d: FALSE}            |
+|                         | {a: TRUE, c: FALSE, d: TRUE}            |
+|                         | {a: TRUE, c: FALSE, d: FALSE}           |
+|                         | {a: FALSE, c: TRUE, d: TRUE}            |
+|                         | {b: TRUE, c: TRUE, d: TRUE}             |
+|                         | {b: TRUE, c: FALSE, d: TRUE}            |
+|                         | {b: FALSE, c: TRUE, d: TRUE}            |
+|                         | {a: TRUE, b: TRUE, c: TRUE, d: TRUE}    |
+|                         | {a: TRUE, b: TRUE, c: TRUE, d: FALSE}   |
+|                         | {a: TRUE, b: TRUE, c: FALSE, d: TRUE}   |
+|                         | {a: TRUE, b: TRUE, c: FALSE, d: FALSE}  |
+|                         | {a: TRUE, b: FALSE, c: TRUE, d: TRUE}   |
+|                         | {a: TRUE, b: FALSE, c: TRUE, d: FALSE}  |
+|                         | {a: TRUE, b: FALSE, c: FALSE, d: TRUE}  |
+|                         | {a: TRUE, b: FALSE, c: FALSE, d: FALSE} |
+|                         | {a: FALSE, b: TRUE, c: TRUE, d: TRUE}   |
+|                         | {a: FALSE, b: TRUE, c: FALSE, d: TRUE}  |
+|                         | {a: FALSE, b: FALSE, c: TRUE, d: TRUE}  |
+|-------------------------+-----------------------------------------|
+| Evidence of unconstrain | {a: TRUE, b: FALSE}                     |
+|                         | {a: TRUE, c: FALSE}                     |
+|                         | {a: TRUE, d: FALSE}                     |
+|                         | {a: TRUE, b: TRUE, c: FALSE}            |
+|                         | {a: TRUE, b: FALSE, c: TRUE}            |
+|                         | {a: TRUE, b: FALSE, c: FALSE}           |
+|                         | {a: TRUE, b: TRUE, d: FALSE}            |
+|                         | {a: TRUE, b: FALSE, d: TRUE}            |
+|                         | {a: TRUE, b: FALSE, d: FALSE}           |
+|                         | {a: TRUE, c: TRUE, d: FALSE}            |
+|                         | {a: TRUE, c: FALSE, d: TRUE}            |
+|                         | {a: TRUE, c: FALSE, d: FALSE}           |
+|                         | {b: TRUE, c: FALSE, d: TRUE}            |
+|                         | {a: TRUE, b: TRUE, c: TRUE, d: FALSE}   |
+|                         | {a: TRUE, b: TRUE, c: FALSE, d: TRUE}   |
+|                         | {a: TRUE, b: TRUE, c: FALSE, d: FALSE}  |
+|                         | {a: TRUE, b: FALSE, c: TRUE, d: TRUE}   |
+|                         | {a: TRUE, b: FALSE, c: TRUE, d: FALSE}  |
+|                         | {a: TRUE, b: FALSE, c: FALSE, d: TRUE}  |
+|                         | {a: TRUE, b: FALSE, c: FALSE, d: FALSE} |
+|                         | {a: FALSE, b: TRUE, c: FALSE, d: TRUE}  |
+|-------------------------+-----------------------------------------|
+
