@@ -1,6 +1,37 @@
-#+title: Preparations to Run the Literate Examples
+#+title: Literate Examples
 #+author: Jan Gru
 #+language: en
+
+This directory contains the literate examples accompanying the paper
+titled
+
+"Formally Characterizing (and Proving) Necessary and Sufficient
+Evidence in Forensic Event Reconstruction"
+
+* Directory Contents
+Here, you find the following files:
+
+#+begin_src shell :results output verbatim
+tree
+#+end_src
+
+#+RESULTS:
+#+begin_example
+.
+├── example-acme.org
+├── example-lst-1.org
+├── example-lst-2.org
+├── example-lst-3.org
+├── example-lst-4.org
+└── readme.org
+
+1 directory, 6 files
+#+end_example
+
+The examples are named by the reference to the Listing defined in the paper.
+
+* Preparations to Run the Literate Examples
+If you want to run the code yourself, please follow the steps below.
 
 First, find the base directory:
 #+name: basepath
