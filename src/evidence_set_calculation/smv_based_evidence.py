@@ -350,15 +350,15 @@ class NuSMVEvidenceProcessor:
         X (G(A -> (G E))
 
         For compound traces, we employ dualization, which means that
-        in case of a compound trace we negate E and read the resulting
-        set as a big conjunction comprised of all set elements. To be
+        in the case of a compound trace, we negate E and read the resulting
+        set as big conjunction comprised of all set elements. To be
         specific:
 
         The first step is the negation of E:
 
         X (G ( (action = a1) -> G !(var1 = FALSE & var2 = FALSE) ) )
 
-        which would lead to the inclusion of var1=TRUE \/ var2=TRUE in
+        which would lead to the inclusion of 'var1=TRUE \/ var2=TRUE' in
         the evidence set, whose elements are connected via
         conjunctions to form NE.
 
