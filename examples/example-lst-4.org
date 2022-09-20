@@ -1,7 +1,7 @@
-#+title: Literate Calculation of Evidence Sets for Example 4
+#+title: Literate Calculation of Evidence Sets for Listing 4
 #+PROPERTY: header-args :session ex-lst-4
 
-* Setup
+* Technical Setup
 Activate the virtual environment =venv=
 #+begin_src elisp :results silent :var path="../"
 (pyvenv-activate (concat path "/venv"))

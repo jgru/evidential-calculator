@@ -1,11 +1,10 @@
-#+title: Literate Calculation of Evidence Sets for Example 1
+#+title: Literate Calculation of Evidence Sets for Listing 1
 #+PROPERTY: header-args :session ex-lst-1
 
 This example provides a basic introduction to the GCL notation and our
 evidence calculations.
 
-* Setup
-
+* Technical Setup
 Activate the virtual environment =venv=
 #+begin_src elisp :results silent :var path="../"
 (pyvenv-activate (concat path "/venv"))

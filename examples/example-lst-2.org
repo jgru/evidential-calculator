@@ -1,10 +1,9 @@
-#+title: Literate Calculation of Evidence Sets for Example 2
+#+title: Literate Calculation of Evidence Sets for Listing 2
 #+PROPERTY: header-args :session ex-lst-2
 
 This example considers a model that houses an unreachable action.
 
-* Setup
-
+* Technical Setup
 Activate the virtual environment =venv=
 #+begin_src elisp :results silent :var path="../"
 (pyvenv-activate (concat path "/venv"))
