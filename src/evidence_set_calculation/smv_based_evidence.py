@@ -91,7 +91,6 @@ class NuSMVEvidenceProcessor:
     def setup(cls, model: str) -> bool:
         """Inititializes NuSMV and loads the model to check."""
         pn.init.init_nusmv()
-        t0 = time.time()
         pn.glob.load(model)
         pn.glob.compute_model()
 
