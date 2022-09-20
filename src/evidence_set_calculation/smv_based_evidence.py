@@ -199,14 +199,16 @@ class NuSMVEvidenceProcessor:
         actions = self.check_actions(actions)
 
         check_func = self.evidence_type_to_func(_type)
-        var_dict = self.get_model_vars()
 
         # Calculate compound SE differently
-        if _type == EvidenceType.sufficient and is_compound:
-            return self.calc_set_compound(actions)
+        if is_compound:
+            return self.calc_set_compound(check_func, actions)
+
 
         if _type == EvidenceType.action_induced:
             check_func = partial(check_func, actions)
+
+        var_dict = self.get_model_vars()
 
         results = {}
         for action in actions:
@@ -221,7 +223,14 @@ class NuSMVEvidenceProcessor:
             results[str(action)] = result
         return results
 
-    def calc_set_compound(self, actions: list[pn.model.Identifier]):
+    def calc_set_compound(
+        self,
+        check_func: Callable[
+            [pn.model.Identifier, dict[pn.model.Identifier, pn.model.SimpleType], str],
+            bool,
+        ],
+        actions: list[pn.model.Identifier],
+    ):
         """Specialization of the calc_set()-method for the
         calculation of compound traces.
 
@@ -268,7 +277,7 @@ class NuSMVEvidenceProcessor:
                 # Pass the combinations to the check-functions,
                 # which constructs the LTL-formula and queries the MC
                 for c in combos:
-                    if self.check_sufficient_trace(action, c):
+                    if check_func(action, c):
                         result.append(c)
 
             results[str(action)] = result
@@ -345,18 +354,14 @@ class NuSMVEvidenceProcessor:
         compound traces here.
 
         """
-        assert (
-            len(d) == 1
-        ), "NE can't and doesn't need to handle compound traces (formula is distributive)"
+        s1 = (
+            f"X ( G ( {action_name} = {action} ->  G ("
+            + " | ".join([f"{var} = {val}" for var, val in d.items()])
+            + ")))"
+        )
 
-        ((var, val),) = d.items()
-        s1 = f"X (G({action_name} = {action} ->  (G {var} = {val})))"
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
         res = pn.mc.check_ltl_spec(spec)
-
-        # Early exit since the trace is definitely not
-        if not res:
-            return res
 
         return res and not NuSMVEvidenceProcessor.is_unreachable(d)
 
@@ -410,7 +415,7 @@ class NuSMVEvidenceProcessor:
             "G("
             + " & ".join([f"({var} != {val})" for var, val in d.items()])
             + ")"
-        )
+       )
 
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s2))
         return pn.mc.check_ltl_spec(spec)
