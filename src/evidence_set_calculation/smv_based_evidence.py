@@ -379,7 +379,7 @@ class NuSMVEvidenceProcessor:
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
         res = pn.mc.check_ltl_spec(spec)
 
-        return res and not NuSMVEvidenceProcessor.is_unreachable(d)
+        return res
 
     @staticmethod
     def check_sufficient_trace(
