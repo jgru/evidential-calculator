@@ -1,5 +1,4 @@
 #+title: Literate Examples
-#+author: Jan Gru
 #+language: en
 
 This directory contains the literate examples accompanying the paper
@@ -28,7 +27,7 @@ tree
 1 directory, 6 files
 #+end_example
 
-The examples are named by the reference to the Listing defined in the paper.
+Each example's name references a listing in the paper.
 
 * Preparations to Run the Literate Examples
 If you want to run the code yourself, please follow the steps below.
