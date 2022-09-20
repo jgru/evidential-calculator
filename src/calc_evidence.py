@@ -70,7 +70,7 @@ def parse_args():
         "--compound",
         required=False,
         action="store_true",
-        help="Calculate compound traces (only relevant for SE)",
+        help="Calculate compound traces",
     )
     parser.add_argument(
         "model",
