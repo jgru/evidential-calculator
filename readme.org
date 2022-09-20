@@ -4,7 +4,64 @@ This repository contains a prototypical implementation of a tool that
 calculates the evidence sets of different classes of evidence.
 
 If you just want to quickly try the tool, you may use the provided
-Dockerfile (see [[here]]).
+Dockerfile (see [[id:57261ec4-5032-4efb-b94d-27b2c3435eeb][Usage via Docker]]).
+
+* Usage
+** General Usage
+Using the provided tool is straightforward, just supply a model, which
+is defined in NuSMV's input specification language either by piping it
+into =stdin= or as a positional argument. In addition to that, specify
+the class of evidence that should be calculated via =-t= (either
+"sufficient" or "necessary" evidence).
+
+#+begin_src shell
+cat examples/models/acme-model.smv | python3 src/calc_evidence.py -t "sufficient"
+#+end_src
+
+If you are only interested in a specific action, you could restrict the
+calculation to that action by supplying =-a=, like it is illustrated
+below:
+
+#+begin_src shell
+python3 src/calc_evidence.py -a "add_job_b" -t "sufficient" examples/models/acme-model.smv
+#+end_src
+
+For a full reference of the CLI, see the manual page below, or run
+=calc_evidence.py= with =--help=.
+
+#+begin_example
+usage: calc_evidence.py [-h] [-a ACTION] [-t {sufficient,necessary}] [-o {csv,raw}] [-c] [model]
+
+positional arguments:
+  model                 Model specified in NuSMV's input language
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a ACTION, --action ACTION
+                        Name of the action of interest
+  -t {sufficient,necessary}, --etype {sufficient,necessary}
+                        Type of evidence to calculate
+  -o {csv,raw}, --output-format {csv,raw}
+                        Output format of the calculated sets
+  -c, --compound        Calculate compound traces
+#+end_example
+** Usage via Docker
+:PROPERTIES:
+:ID:       57261ec4-5032-4efb-b94d-27b2c3435eeb
+:END:
+For the impatient, we provide a Dockerfile. Build it by running the following command:
+
+#+begin_src shell
+docker build . -t evic
+#+end_src
+
+Then, use it by mapping the current working directory into the
+containers =/data=-directory and providing the exemplary model to the
+entrypoint:
+
+#+begin_src shell
+docker run -it -v $(pwd):/data evic calc_evidence.py /data/examples/models/acme-model.smv
+#+end_src
 
 * Installation
 ** Dependencies
@@ -38,56 +95,3 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 #+end_src
 
-* Usage
-** Usage via Docker
-For the impatient, we provide a Dockerfile. Build it by running the following command:
-
-#+begin_src shell
-docker build . -t evic
-#+end_src
-
-Then, use it by mapping the current working directory into the
-containers =/data=-directory and providing the exemplary model to the
-entrypoint:
-
-#+begin_src shell
-docker run -it -v $(pwd):/data evic calc_evidence.py /data/examples/models/acme-model.smv
-#+end_src
-
-** General Usage
-Using the provided tool is straightforward, just supply a model, which
-is defined in NuSMV's input specification language either by piping it
-into =stdin= or as a positional argument. In addition to that, specify
-the class of evidence that should be calculated via =-t= (either
-"sufficient" or "necessary" evidence).
-
-#+begin_src shell
-cat examples/models/acme-model.smv | python3 src/calc_evidence.py -t "sufficient"
-#+end_src
-
-If you are only interested in a specific action, you could restrict the
-calculation to that action by supplying =-a=, like it is illustrated
-below:
-
-#+begin_src shell
-python3 src/calc_evidence.py -a "add_job_b" -t "sufficient" examples/models/acme-model.smv
-#+end_src
-
-For a full reference of the CLI, see the manual page below, or run
-=calc_evidence.py= with =--help=.
-
-#+begin_example
-usage: calc_evidence.py [-h] [-a ACTION] [-t {sufficient,necessary}] [-o {org,csv,raw}] [model]
-
-positional arguments:
-  model                 Model specified in NuSMV's input language
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -a ACTION, --action ACTION
-                        Name of the action of interest
-  -t {sufficient,necessary}, --etype {sufficient,necessary}
-                        Type of evidence to calculate
-  -o {org,csv,raw}, --output-format {org,csv,raw}
-                        Output format of the calculated sets
-#+end_example
