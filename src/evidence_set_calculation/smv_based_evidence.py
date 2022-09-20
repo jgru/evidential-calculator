@@ -27,7 +27,7 @@ class EvidenceType(Enum):
     def __str__(self) -> str:
         return str.__str__(self)
 
-    def normalize(_type: Union[Enum, str]) -> EvidenceType:
+    def normalize(_type: Union[Enum, str]) -> Enum:
         """
         Ensures that _type is converted to an EvidenceType-object
         if necessary.
