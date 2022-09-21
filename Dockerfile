@@ -3,29 +3,32 @@
 #
 # Author: jgru
 
-FROM python:3.9.13-slim-bullseye
+FROM debian:bullseye-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN echo 'APT::Get::Assume-Yes "true";' >> /etc/apt/apt.conf
 
 # Just for the convenience of it
-RUN apt-get -y update
+RUN apt-get update
 
 # Required to build NuSMV
-RUN apt-get -y install build-essential
-RUN apt-get -y install zip
-RUN apt-get -y install flex bison
-RUN apt-get -y install zlib1g-dev
-RUN apt-get -y install libexpat-dev
+RUN apt-get install build-essential
+RUN apt-get install zip
+RUN apt-get install flex bison
+RUN apt-get install zlib1g-dev
+RUN apt-get install libexpat-dev
 
 # Required for PyNuSMV
-RUN apt-get -y install python3 python3-dev libpython3-dev
-RUN apt-get -y install python3-pip
-RUN apt-get -y install swig
-RUN apt-get -y install patchelf
+RUN apt-get install python3 python3-dev libpython3-dev
+RUN apt-get install python3-pip
+RUN apt-get install swig
+RUN apt-get install patchelf
 
 RUN pip3 install --upgrade pip
 RUN pip3 install setuptools
 
 # # To clone the repo
-# RUN apt-get -y install git
+# RUN apt-get install git
 
 WORKDIR /usr/local/src
 
