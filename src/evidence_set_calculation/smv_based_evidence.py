@@ -258,10 +258,10 @@ class NuSMVEvidenceProcessor:
         results = {}
         _vars = self.get_model_vars()
 
-        # Collect variable combos to avoid "checking to much"
-        hits = []
 
         for action in actions:
+            # Collect variable combos to avoid "checking to much"
+            hits = []
             result = []
             for d in self.powerdict(_vars):
 
