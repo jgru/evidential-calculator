@@ -423,20 +423,22 @@ class NuSMVEvidenceProcessor:
 
     @staticmethod
     def is_unreachable(d: dict[pn.model.Identifier, pn.model.SimpleType]) -> bool:
-        """Checks whether a variable is actually changed.
+        """Checks whether a variable's valuation (or a combination of
+        variable valuations) is actually reachable.
 
-        If the model contains constants, you need to check the
-        following formula as well
+        In the most simple case, you check if the model contains
+        constants by using following formula as well
 
-        (G(var = FALSE))  <- this should yield False
+        G (var != TRUE)  <- this should yield False
 
         This ensures that the variable is actually set/changed
-        somewhere. In case of boolean variabls this means that it does
-        not always remain FALSE. Please note, that the conjunct of
-        those two formulae is not the same as checking them in order.
+        somewhere.
+
+        For combinations of variabls, the disjunction is checked
+        (De-morgan since we use the negation here).
 
         """
-        # Checks, if the variables are actually modified at some point
+        # Checks, if this combination of variables is actually reachable
         s2 = (
             "G("
             + " | ".join([f"({var} != {val})" for var, val in d.items()])
