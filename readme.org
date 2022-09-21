@@ -15,7 +15,7 @@ the class of evidence that should be calculated via =-t= (either
 "sufficient" or "necessary" evidence).
 
 #+begin_src shell
-cat examples/models/acme-model.smv | python3 src/calc_evidence.py -t "sufficient"
+cat examples/models/acme-model.smv | python3.9 src/calc_evidence.py -t "sufficient"
 #+end_src
 
 If you are only interested in a specific action, you could restrict the
@@ -49,15 +49,15 @@ optional arguments:
 :PROPERTIES:
 :ID:       57261ec4-5032-4efb-b94d-27b2c3435eeb
 :END:
-For the impatient, we provide a Dockerfile. Build it by running the following command:
+For quick tryouts, we provide a Dockerfile. Build it by running the following
+command:
 
 #+begin_src shell
 docker build . -t evic
 #+end_src
 
-Then, use it by mapping the current working directory into the
-containers =/data=-directory and providing the exemplary model to the
-entrypoint:
+Then, use it by mapping the current working directory into the containers
+=/data=-directory and providing the exemplary model to the entrypoint:
 
 #+begin_src shell
 docker run -it -v $(pwd):/data evic calc_evidence.py /data/examples/models/acme-model.smv
@@ -67,11 +67,24 @@ docker run -it -v $(pwd):/data evic calc_evidence.py /data/examples/models/acme-
 ** Dependencies
 The code depends on [[https://github.com/LouvainVerificationLab/pynusmv][PyNuSMV]], which is included as a submodule. In
 order to compile it, ensure that you have the following prerequisites
-installed.
+installed. Please note that PyNuSMV requires Python 3.9.8.
+
+Assuming you are using Debian 11 (Codename Bullseye), you can run the
+following commands.
 
 #+begin_src shell
 sudo apt install build-essential zip zlib1g-dev libexpat-dev flex bison swig patchelf
 sudo apt install python3 python3-dev libpython3-dev python3-pip
+#+end_src
+
+If you are running a distro, install Python 3.9.8 from source, like so:
+#+begin_src shell
+wget https://www.python.org/ftp/python/3.9.8/Python-3.9.8.tgz
+tar -xvf Python-3.9.8.tgz
+cd Python-3.9.8
+./configure --enable-optimizations
+make -j $(nproc)
+make altinstall
 #+end_src
 
 ** Install Module Via Python's Package Manager =pip=
@@ -90,7 +103,7 @@ create a virtual environment named =venv= and install the requirements
 in there, like so:
 
 #+begin_src shell
-python3 -m venv venv
+python3.9 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 #+end_src

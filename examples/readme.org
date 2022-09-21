@@ -1,11 +1,10 @@
 #+title: Literate Examples
 #+language: en
 
-This directory contains the literate examples accompanying our paper
-titled
+This directory contains the literate examples accompanying our paper titled
 
-/"Formally Characterizing (and Proving) Necessary and Sufficient
-Evidence in Forensic Event Reconstruction"/
+/"Formally Characterizing (and Proving) Necessary and Sufficient Evidence in
+Forensic Event Reconstruction"/
 
 Each notebook's name references a listing in the paper.
 - [[./example-lst-1.org][Listing 1: Simple introduction]]
@@ -34,11 +33,50 @@ tree
 #+end_example
 
 * Preparations to Run the Literate Examples
-If you want to run the code yourself, please follow the steps below.
-We used Emacs 29.0.50 compiled from source and running on in Debian
-Bookworm as the computing environment. The actual code is executed by
-a Python interpreter in version 3.9.8.
+Although the literate notebooks are already comprehensive you might want to
+execute the src-blocks yourself. 
 
+** Using Docker
+To enable you to just run the code and get results, we provide a [[./Dockerfile][Dockerfile]]
+having Emacs 28.1 (the terminal version =emacs-nox=) and all necessary packages
+(especially, Python 3.9.8) installed. It extends the Dockerfile in the parent
+directory. To build it run the following commands:
+
+#+begin_src shell
+cd .. && docker build . -t evic
+cd examples && docker build . -t evic-emacs
+#+end_src
+
+Afterward, you can start the container simply by running
+#+begin_src shell
+docker run -it evic-emacs
+#+end_src
+
+Note that if you want to make persistent changes, consider to bind-mount a
+directory:
+#+begin_src shell
+docker run -it -v $(pwd)/..:/data/evidential-calculator evic-ema
+#+end_src
+
+After having started the container, you can simply open the notebooks located in
+=/usr/local/src/evidential-calculator/examples= and execute each source block
+one after another.
+
+** Manual Setup
+If you refrain from using Docker, please consider the following notes for
+running the literate examples.
+
+*** Dependencies
+If you want to run the code without a container, please ensure that you have the
+following dependencies installed:
+
+- Python 3.9.8
+  - with the libraries listed [[../requirements.txt][../requirements.txt]]
+- Emacs with the packages
+  - =org-babel= (already include in =org=)
+  - =pyvenv-mode=
+
+*** Running the Examples
 First, find the base directory of this file:
 #+name: basepath
 #+begin_src elisp
