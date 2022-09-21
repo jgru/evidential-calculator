@@ -177,7 +177,7 @@ class NuSMVEvidenceProcessor:
         self,
         _type: Union[EvidenceType, str],
         actions: Union[pn.model.Identifier, list[pn.model.Identifier]] = None,
-        is_compound: bool = False,
+        is_compound: bool = True,
     ) -> dict[str, dict[pn.model.Identifier, pn.model.Identifier]]:
         """Calucates the requested set of evidence.
 
