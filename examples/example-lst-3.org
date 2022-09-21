@@ -116,42 +116,40 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 
 ** Sufficient Evidence
 #+begin_src python
-is_compound = False  # Look at each variable individually
 actions = None  # Consider all actions in the model
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.sufficient, actions, is_compound)
+    es = ep.calc_set(sbe.EvidenceType.sufficient, actions)
     # Output evidence sets as table
     utils.output_evidence_set(es, "org")
 #print(es)
 #+end_src
 
 #+RESULTS:
-|-------------------------+-------------|
-| Desc                    | Assignments |
-|-------------------------+-------------|
-| Evidence of a0          |             |
-|-------------------------+-------------|
-| Evidence of a1          | {a: TRUE}   |
-|                         | {b: TRUE}   |
-|-------------------------+-------------|
-| Evidence of b0          |             |
-|-------------------------+-------------|
-| Evidence of b1          | {b: TRUE}   |
-|-------------------------+-------------|
-| Evidence of unconstrain |             |
-|-------------------------+-------------|
+|-------------------------+---------------------|
+| Desc                    | Assignments         |
+|-------------------------+---------------------|
+| Evidence of a0          | {a: FALSE, b: TRUE} |
+|-------------------------+---------------------|
+| Evidence of a1          | {a: TRUE}           |
+|                         | {b: TRUE}           |
+|-------------------------+---------------------|
+| Evidence of b0          |                     |
+|-------------------------+---------------------|
+| Evidence of b1          | {b: TRUE}           |
+|-------------------------+---------------------|
+| Evidence of unconstrain |                     |
+|-------------------------+---------------------|
 
 ** Necessary Evidence
 The example program has no necessary evidence.
 #+begin_src python
-is_compound = True  # Look at each variable individually
 actions = None  # Consider all actions in the model
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.necessary, actions, is_compound)
+    es = ep.calc_set(sbe.EvidenceType.necessary, actions)
     # Output evidence sets as table
     utils.output_evidence_set(es, "org")
 #print(es)

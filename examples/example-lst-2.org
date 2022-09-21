@@ -100,12 +100,11 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 
 ** Sufficient Evidence
 #+begin_src python
-is_compound = False  # Look at each variable individually
 actions = []  # Consider all actions in the model
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.sufficient, actions, is_compound)
+    es = ep.calc_set(sbe.EvidenceType.sufficient, actions)
     # Output evidence sets as table
     utils.output_evidence_set(es, "org")
 #print(es)
@@ -124,12 +123,11 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 
 ** Necessary Evidence
 #+begin_src python
-is_compound = False  # Look at each variable individually
 actions = None  # Consider all actions in the model
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.necessary, actions, is_compound)
+    es = ep.calc_set(sbe.EvidenceType.necessary, actions)
     # Output evidence sets as table
     utils.output_evidence_set(es, "org")
 #print(es)
