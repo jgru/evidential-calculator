@@ -1,6 +1,9 @@
 #+title: Literate Calculation of Evidence Sets for Listing 4
 #+PROPERTY: header-args :session ex-lst-4
 
+This example illustrates multiple effects of one action, which also
+reverse variable assignments.
+
 * Technical Setup
 Activate the virtual environment =venv=
 #+begin_src elisp :results silent :var path="../"
