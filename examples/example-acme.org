@@ -1,13 +1,28 @@
+:PROPERTIES:
+:ID:       e4dcc1d3-0102-4a14-a961-c2746c5b6f81
+:END:
 #+title: Literate Solution of Gladyshev's /ACME Printer Case/
 
-* The ACME-Printer-Case
+In this notebook, we demonstrate how to solve Gladyshev's well-known
+/ACME Printer Case/ using our prototypical implementation that employs
+the LTL-specification of sufficient evidence (SE).
+
+First, we briefly describe the scenario, which may be skipped if you
+are well familiar with it or read the accompanying paper. Second, the
+model is specified in NuSMV syntax (see [[id:c3e4be64-3a13-46fa-ba0d-523514eec4f1][Model Specification]]). Third,
+we show how to solve the case using out Python model (see [[id:e4ee2a96-97da-4948-9da1-284dcf20d434][Solution
+Using Our Python Module]]). Finally, we present how to solve the case
+using the CLI of our tool and a regex that is derived from its output
+(see [[id:c5074f21-dc59-4003-a6eb-f037c7d0f80c][Solution Using Our Prototypical CLI-Tool]]).
+
+* The ACME Printer Case
 ** Literature References
 In 2004, Gladyshev & Patel presented a fictious example case
 concerning /ACME Manufacturing/ that was later picked up by James et
 al. (2009) and Soltani & Hosseini-Seno to confront their methods with
 a case study and put it to life.
 
-** Description of Scenario
+** Description of the Scenario
 The situation described by the above mentioned authors is as follows:
 There is a local area network at the /ACME/ company with two computers
 and a networked printer. Alice and Bob operate the network and share
@@ -19,18 +34,16 @@ has to be initiated to resolve the dispute.
 #+begin_quote
 According to the manufacturer, the printer works as follows:
 
-1. When a print job is received from the user it is stored in the
-first unallocated directory entry of the print job directory.
-2. The printing mechanism scans the print job directory from the
-beginning and picks the first active job.
-3. After the job is printed, the corresponding directory entry is
-marked as "deleted", but the name of the job owner is preserved.
+1) When a print job is received from the user it is stored in the
+   first unallocated directory entry of the print job directory.
+2) The printing mechanism scans the print job directory from the
+   beginning and picks the first active job.
+3) After the job is printed, the corresponding directory entry is
+   marked as "deleted", but the name of the job owner is preserved.
 
 The manufacturer also noted that
-\begin{enumerate}[resume]
-4. The printer can accept only one print job from each user at a time.
-5. Initially, all directory entries are
-  empty."
+4) The printer can accept only one print job from each user at a time.
+5) Initially, all directory entries are empty."
 #+end_quote
 -- (Gladyshev & Patel, 2004, p. 4)
 
@@ -54,6 +67,13 @@ Alice's testony and prove that she must have used the printer at least
 once?
 
 * Model Specification
+:PROPERTIES:
+:ID:       c3e4be64-3a13-46fa-ba0d-523514eec4f1
+:END:
+As a first step, we converted the verbal description of the printer's
+functioning into a model using NuSMV's specification syntax, as shown
+in [[ex-acme-smv]].
+
 #+name: ex-acme-smv
 #+begin_example
 MODULE main
@@ -130,9 +150,10 @@ MODULE main
         next(action) = nop -> TRUE
 #+end_example
 
-* Solution Using Our Library
+* Solution Using Our Python Module
 :PROPERTIES:
 :header-args+: :session ex-acme
+:ID:       e4ee2a96-97da-4948-9da1-284dcf20d434
 :END:
 In this section, we demonstrate how our Python-module named
 =smv_based_evidence.py= can be used to solve the /ACME Printer Case/.
@@ -220,9 +241,11 @@ print(e_obs)
 Having the observed evidence avaiable as such an =evidence_dict=, we
 can simply check whether the formula
 
-\[\exists s \in SE(add_job_a, M) \mid s \subseteq E_{obs}\]
+\[
+\exists s \in SE(add_job_a, M) \mid s \subseteq E_{obs}
+\]
 
-holds and identify the element \(s\) of interest.
+holds and subsequently identify the decisive element \(s\).
 
 #+name: check-s-in-e-obs-py
 #+begin_src python :var model_data=ex-acme-smv :results output verbatim
@@ -233,11 +256,12 @@ for s in se[action]:
 
 #+RESULTS: check-s-in-e-obs-py
 : Found sufficient evidence for add_job_a:
-: 	{printdir_2: DelB}
+:       {printdir_2: DelB}
 
 * Solution Using Our Prototypical CLI-Tool
 :PROPERTIES:
 :header-args: :noweb yes :results output table
+:ID:       c5074f21-dc59-4003-a6eb-f037c7d0f80c
 :END:
 In this section, we demonstrate how our prototypical tool
 =calc_evidence= providing a CLI-interface can be used to solve the
@@ -263,6 +287,7 @@ echo $model | python3 ../src/calc_evidence.py -o csv -a "add_job_a" -t "sufficie
 : add_job_a,{printdir_2: DelA}
 : add_job_a,{printdir_2: DelB}
 
+
 ** Answering the Investigative Question
 In order to answer the investigative question, we need to check if an
 element of the set of sufficient evidences is contained within the
@@ -282,7 +307,6 @@ do
          PATTERN+="|"
      fi
      tline=$(echo $line | sed 's/{/\\{/g' | sed 's/}/\\}/g')
-     #tline=$(echo $line | tr '{' '\\{' | tr '}' '\\}')
      PATTERN+="${tline}"
   fi
 done <<< $(echo $traces | cut -d"," -f2 | tail -n+2)
@@ -292,6 +316,7 @@ echo $PATTERN
 
 #+RESULTS: se-regex
 (\{printdir_1: JobA\}|\{printdir_1: DelA\}|\{printdir_2: JobA\}|\{printdir_2: JobB\}|\{printdir_2: DelA\}|\{printdir_2: DelB\})
+
 
 Again, we have to operate on the machine-readable version of the
 observed evidence as it was already presented in [[e-obs]]. Based on this
@@ -308,5 +333,6 @@ echo $evidence_obs | grep -o -E $pattern
 : {printdir_2: DelB}
 
 
-Since there is such an element \(s \in SE{}\) (={printdir_2: DelB}=)
-that exists in \(E_{obs}\), Alice must have printed at least once.
+Since there is such an element \(s \in SE(add_job_a,M)\) (namely
+={printdir_2: DelB}=) that exists in \(E_{obs}\), Alice must have
+printed at least once.
