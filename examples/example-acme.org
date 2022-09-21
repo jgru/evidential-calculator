@@ -34,16 +34,16 @@ has to be initiated to resolve the dispute.
 #+begin_quote
 According to the manufacturer, the printer works as follows:
 
-1) When a print job is received from the user it is stored in the
-   first unallocated directory entry of the print job directory.
-2) The printing mechanism scans the print job directory from the
-   beginning and picks the first active job.
-3) After the job is printed, the corresponding directory entry is
-   marked as "deleted", but the name of the job owner is preserved.
+- When a print job is received from the user it is stored in the
+  first unallocated directory entry of the print job directory.
+- The printing mechanism scans the print job directory from the
+  beginning and picks the first active job.
+- After the job is printed, the corresponding directory entry is
+  marked as "deleted", but the name of the job owner is preserved.
 
 The manufacturer also noted that
-4) The printer can accept only one print job from each user at a time.
-5) Initially, all directory entries are empty."
+- The printer can accept only one print job from each user at a time.
+- Initially, all directory entries are empty."
 #+end_quote
 -- (Gladyshev & Patel, 2004, p. 4)
 
