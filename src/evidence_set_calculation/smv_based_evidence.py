@@ -439,7 +439,7 @@ class NuSMVEvidenceProcessor:
         # Checks, if the variables are actually modified at some point
         s2 = (
             "G("
-            + " & ".join([f"({var} != {val})" for var, val in d.items()])
+            + " | ".join([f"({var} != {val})" for var, val in d.items()])
             + ")"
        )
 
