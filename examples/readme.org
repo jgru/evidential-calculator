@@ -4,8 +4,8 @@
 This directory contains the literate examples accompanying our paper
 titled
 
-"Formally Characterizing (and Proving) Necessary and Sufficient
-Evidence in Forensic Event Reconstruction"
+/"Formally Characterizing (and Proving) Necessary and Sufficient
+Evidence in Forensic Event Reconstruction"/
 
 Each notebook's name references a listing in the paper.
 - [[./example-lst-1.org][Listing 1: Simple introduction]]
@@ -14,7 +14,7 @@ Each notebook's name references a listing in the paper.
 - [[./example-lst-4.org][Listing 4: Multiple effects]]
 
 * Directory Contents
-Here, you find the following =org-mode=-notebooks:
+Within this directory, you find the following =org-mode=-notebooks:
 
 #+begin_src shell :results output verbatim
 tree
@@ -35,8 +35,11 @@ tree
 
 * Preparations to Run the Literate Examples
 If you want to run the code yourself, please follow the steps below.
+We used Emacs 29.0.50 compiled from source and running on in Debian
+Bookworm as the computing environment. The actual code is executed by
+a Python interpreter in version 3.9.8.
 
-First, find the base directory:
+First, find the base directory of this file:
 #+name: basepath
 #+begin_src elisp
 (let ((basepath
@@ -50,12 +53,13 @@ First, find the base directory:
 : /tmp/evidential-calculator/
 
 
-Second, create Python virtual environment called =venv= by running:
+Second, create Python virtual environment called =venv= by running the following commands:
 #+begin_src shell :results output verbatim :var BP=basepath
 cd $BP
 python3.9 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
+#
 # Eventually, install the evidence_set_calculation-package
 # cd $BP && pip3 install .
 #+end_src
