@@ -1,7 +1,7 @@
 # Build up on local docker image placed in ..
 FROM evic
 #
-# It is needed to once run:
+# It is needed to once run before building this Dockerfile:
 # cd .. && docker build . -t evic
 
 ENV DEBIAN_FRONTEND=noninteractive
