@@ -258,9 +258,18 @@ class NuSMVEvidenceProcessor:
         results = {}
         _vars = self.get_model_vars()
 
+        # Collect variable combos to avoid "checking to much"
+        hits = []
+
         for action in actions:
             result = []
             for d in self.powerdict(_vars):
+
+                # Check whether a subset of this variables were alread
+                # sufficient (or necessary)
+                if any([h.items() <= d.items() for h in hits]):
+                    continue
+
                 # Get valuation of each variable
                 # e.g., [[1,2,3], [True, False],...
                 a = [self.get_values(v) for v in d.values()]
@@ -277,6 +286,7 @@ class NuSMVEvidenceProcessor:
                 # which constructs the LTL-formula and queries the MC
                 for c in combos:
                     if check_func(action, c):
+                        hits.append(d)
                         result.append(c)
 
             results[str(action)] = result
