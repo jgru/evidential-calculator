@@ -34,16 +34,20 @@ tree
 
 * Preparations to Run the Literate Examples
 Although the literate notebooks are already comprehensive you might want to
-execute the src-blocks yourself. 
+execute the src-blocks yourself.
 
 ** Using Docker
-To enable you to just run the code and get results, we provide a [[./Dockerfile][Dockerfile]]
-having Emacs 28.1 (the terminal version =emacs-nox=) and all necessary packages
-(especially, Python 3.9.8) installed. It extends the Dockerfile in the parent
-directory. To build it run the following commands:
+To enable you to just run the code and get results, we provide a
+[[./Dockerfile][Dockerfile]] having Emacs 28.1 (the terminal version =emacs-nox=) with
+all packages and all other necessary dependencies (especially, Python
+3.9.8) installed. It extends the Dockerfile in the parent directory.
+
+To build it run the following commands:
 
 #+begin_src shell
+# Build "base layers" containing the evidential-calculator
 cd .. && docker build . -t evic
+# Build the dockerized Emacs for the literate exampels
 cd examples && docker build . -t evic-emacs
 #+end_src
 
@@ -71,8 +75,8 @@ If you want to run the code without a container, please ensure that you have the
 following dependencies installed:
 
 - Python 3.9.8
-  - with the libraries listed [[../requirements.txt][../requirements.txt]]
-- Emacs with the packages
+  - with the libraries listed in [[../requirements.txt][../requirements.txt]]
+- Emacs with the packages (see [[./init.el]] for reference)
   - =org-babel= (already include in =org=)
   - =pyvenv-mode=
 
