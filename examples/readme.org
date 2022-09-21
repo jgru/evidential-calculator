@@ -1,14 +1,20 @@
 #+title: Literate Examples
 #+language: en
 
-This directory contains the literate examples accompanying the paper
+This directory contains the literate examples accompanying our paper
 titled
 
 "Formally Characterizing (and Proving) Necessary and Sufficient
 Evidence in Forensic Event Reconstruction"
 
+Each notebook's name references a listing in the paper.
+- [[./example-lst-1.org][Listing 1: Simple introduction]]
+- [[./example-lst-2.org][Listing 2: Unreachable action]]
+- [[./example-lst-3.org][Listing 3: Semaphore]]
+- [[./example-lst-4.org][Listing 4: Multiple effects]]
+
 * Directory Contents
-Here, you find the following files:
+Here, you find the following =org-mode=-notebooks:
 
 #+begin_src shell :results output verbatim
 tree
@@ -26,8 +32,6 @@ tree
 
 1 directory, 6 files
 #+end_example
-
-Each example's name references a listing in the paper.
 
 * Preparations to Run the Literate Examples
 If you want to run the code yourself, please follow the steps below.
