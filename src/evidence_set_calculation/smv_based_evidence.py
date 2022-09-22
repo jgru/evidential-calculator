@@ -6,7 +6,6 @@ from enum import Enum
 from functools import partial
 from itertools import chain, combinations, product
 from typing import OrderedDict, Union
-from functools import partial
 
 import pynusmv as pn
 
@@ -170,24 +169,21 @@ class NuSMVEvidenceProcessor:
             return cls.check_action_induced_trace
         else:
             raise NotImplemented(
-                "{_type.value} evidence sets are not implemented yet"
+                "{_type.value} is unknown."
             )
 
     def calc_set(
         self,
         _type: Union[EvidenceType, str],
         actions: Union[pn.model.Identifier, list[pn.model.Identifier]] = None,
-        is_compound: bool = True,
     ) -> dict[str, dict[pn.model.Identifier, pn.model.Identifier]]:
         """Calucates the requested set of evidence.
 
         _type specifies which kind of evidence to calculate.
 
         actions might be a single action (specified as str or
-        pn.model.Identifier or a list of those types)
-
-        is_compound specifies if only single variable or combinations
-        of those should be considered.
+        pn.model.Identifier or a list of those types). If it is [] or
+        None, all actions are queried from the model
 
         Returns a dict of dicts where the respective action is used as key
         for the respective dict of evidence.
@@ -199,28 +195,11 @@ class NuSMVEvidenceProcessor:
 
         check_func = self.evidence_type_to_func(_type)
 
-        # Calculate compound SE differently
-        if is_compound:
-            return self.calc_set_compound(check_func, actions)
-
-
         if _type == EvidenceType.action_induced:
             check_func = partial(check_func, actions)
 
-        var_dict = self.get_model_vars()
+        return self.calc_set_compound(check_func, actions)
 
-        results = {}
-        for action in actions:
-            result = []
-            for var, valuation in var_dict.items():
-                values = self.get_values(valuation)
-                for d in [{var: val} for val in values]:
-                    if check_func(action, d):
-                        # ((var, val),) = d.items()
-                        result.append(d)
-
-            results[str(action)] = result
-        return results
 
     def calc_set_compound(
         self,
@@ -232,9 +211,6 @@ class NuSMVEvidenceProcessor:
     ):
         """Specialization of the calc_set()-method for the
         calculation of compound traces.
-
-        Based on DeMorgan's law, the following formula is used:
-        (X action = a) V (({var1} != {val1}) | ({var} != {val}) | ...)
 
         The calculation itself is conducted as follows:
 
@@ -250,10 +226,8 @@ class NuSMVEvidenceProcessor:
         6. Eventually, store the variable/value-combination, if
            the formula holds
 
-        *Note:* This could be optimized by discarding checks of
-        compound traces containing variables that were earlier
-        identified to be sufficient.
-
+        Returns a dict of dicts where the respective action is used as key
+        for the respective dict of evidence.
         """
         results = {}
         _vars = self.get_model_vars()
@@ -321,23 +295,21 @@ class NuSMVEvidenceProcessor:
         the current implementation.
 
         """
-        assert len(d) == 1, "AE can't handle compound traces"
+        ae = " & ".join([f"{var} = {val}" for var, val in d.items()])
 
-        ((var, val),) = d.items()
-
-        s1 = (
-            f"({var} != {val}) & (X G (({action_name} = {action}) -> ({var} = {val}))) & G ("
+        phi = (
+            f"(!{ae}) & (X G (({action_name} = {action}) -> ({ae}))) & G ("
             + " & ".join(
                 [
-                    f"(({var} != {val}) -> X (({action_name} = {other}) -> ({var} != {val}))) "
+                    f"((!{ae}) -> X (({action_name} = {other}) -> (!{ae}))) "
                     for other in actions
                     if other != action
+
                 ]
             )
             + ")"
         )
-
-        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
+        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(phi))
         res = pn.mc.check_ltl_spec(spec)
 
         # Early exit, since the trace is definitely not part of the evidence set
@@ -380,13 +352,13 @@ class NuSMVEvidenceProcessor:
         which is actually done in this function.
 
         """
-        s1 = (
+        phi = (
             f"X ( G ( {action_name} = {action} ->  G ("
             + " | ".join([f"{var} = {val}" for var, val in d.items()])
             + ")))"
         )
 
-        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
+        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(phi))
         res = pn.mc.check_ltl_spec(spec)
 
         return res
@@ -402,16 +374,19 @@ class NuSMVEvidenceProcessor:
         accomplished by using the following LTL-formula:
 
         (X action = a) V ({var1} != {val1})
-        or
-        (X action = a) V (({var1} != {val1}) | ({var2} != {val2}) | ...)
+
+        Based on DeMorgan's law, the following formula is used when
+        there are multiple variables:
+
+        (X action = a) V (({var1} !={val1}) | ({var} != {val}) | ...)
 
         """
-        s1 = (
+        phi = (
             f"(X {action_name} = {action}) V ("
             + " | ".join([f"{var} != {val}" for var, val in d.items()])
             + ")"
         )
-        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s1))
+        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(phi))
 
         releases = pn.mc.check_ltl_spec(spec)
 
@@ -439,13 +414,13 @@ class NuSMVEvidenceProcessor:
 
         """
         # Checks, if this combination of variables is actually reachable
-        s2 = (
+        phi = (
             "G("
             + " | ".join([f"({var} != {val})" for var, val in d.items()])
             + ")"
        )
 
-        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(s2))
+        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(phi))
         return pn.mc.check_ltl_spec(spec)
 
     def check_actions(
@@ -497,7 +472,7 @@ class NuSMVEvidenceProcessor:
 
         E.g., powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)
 
-        Taken from
+        Inspired from
         http://jim-holmstroem.github.io/python/itertools/2014/09/28/powerset-powerdict.html
 
         """
