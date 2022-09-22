@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import sys
 import time
@@ -26,7 +28,7 @@ class EvidenceType(Enum):
     def __str__(self) -> str:
         return str.__str__(self)
 
-    def normalize(_type: Union[Enum, str]) -> Enum:
+    def normalize(_type: Union[Enum, str]) -> EvidenceType:
         """
         Ensures that _type is converted to an EvidenceType-object
         if necessary.
@@ -56,7 +58,7 @@ class NuSMVEvidenceProcessor:
     # the encoding of the action
     ACTION_NAME = "action"
 
-    def __init__(self, model):
+    def __init__(self, model) -> None:
         """Initializes the processor. To do so, the model data is
         stored in its string version and as well in a parsed version
         for later use.
@@ -68,7 +70,7 @@ class NuSMVEvidenceProcessor:
         )
         self.is_initialized = False
 
-    def __enter__(self):
+    def __enter__(self) -> self:
         """
         Establishes a context manager and initializes pynusmv.
         """
@@ -80,7 +82,7 @@ class NuSMVEvidenceProcessor:
 
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         """
         Exits the context manager and tears down pynusmv.
         """
@@ -112,7 +114,7 @@ class NuSMVEvidenceProcessor:
 
         return True
 
-    def deinit(self):
+    def deinit(self) -> None:
         """Quits and cleans up NuSMV."""
         pn.init.deinit_nusmv()
         self.is_initialized = False
