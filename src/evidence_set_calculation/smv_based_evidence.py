@@ -458,11 +458,10 @@ class NuSMVEvidenceProcessor:
         return actions
 
     @staticmethod
-    def get_values(valuation: pn.model.SimpleType):
+    def get_values(valuation: pn.model.SimpleType) -> list[pn.model.SimpleType]:
         """Retrieves the values from pn.model.Scalar or
         pn.model.Boolean-objects. This is necessary, since Booleans do
         not have a values-member.
-
         """
         if isinstance(valuation, pn.model.Boolean):
             return [pn.model.Trueexp(), pn.model.Falseexp()]
