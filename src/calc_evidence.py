@@ -33,7 +33,7 @@ def main():
 
     with NuSMVEvidenceProcessor(model_data) as ep:
         es = ep.calc_set(
-            EvidenceType.normalize(args.etype), [args.action], args.compound
+            EvidenceType.normalize(args.etype), [args.action]
         )
         output_evidence_set(es, args.output_format)
 
@@ -64,13 +64,6 @@ def parse_args():
             EvidenceFormat.raw.value,
         ],
         help="Output format of the calculated sets",
-    )
-    parser.add_argument(
-        "-c",
-        "--compound",
-        required=False,
-        action="store_true",
-        help="Calculate compound traces",
     )
     parser.add_argument(
         "model",
