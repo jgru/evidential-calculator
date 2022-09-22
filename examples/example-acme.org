@@ -196,14 +196,13 @@ _type = "sufficient"
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for that action
-    se = ep.calc_set(_type, action, is_compound=True)
+    se = ep.calc_set(_type, action)
     # Output evidence sets as table
     print(se)
 #+end_src
 
 #+RESULTS:
-: {'add_job_a': [{printdir_1: JobA}, {printdir_1: DelA}, {printdir_2: JobA}, {printdir_2: JobB}, {printdir_2: DelA}, {printdir_2: DelB}, {printdir_1: Empty, printdir_2: JobA}, {printdir_1: Empty, printdir_2: JobB}, {printdir_1: Empty, printdir_2: DelA}, {printdir_1: Empty, printdir_2: DelB}, {printdir_1: JobA, printdir_2: Empty}, {printdir_1: JobA, printdir_2: JobA}, {printdir_1: JobA, printdir_2: JobB}, {printdir_1: JobA, printdir_2: DelA}, {printdir_1: JobA, printdir_2: DelB}, {printdir_1: JobB, printdir_2: JobA}, {printdir_1: JobB, printdir_2: JobB}, {printdir_1: JobB, printdir_2: DelA}, {printdir_1: JobB, printdir_2: DelB}, {printdir_1: DelA, printdir_2: Empty}, {printdir_1: DelA, printdir_2: JobA}, {printdir_1: DelA, printdir_2: JobB}, {printdir_1: DelA, printdir_2: DelA}, {printdir_1: DelA, printdir_2: DelB}, {printdir_1: DelB, printdir_2: JobA}, {printdir_1: DelB, printdir_2: JobB}, {printdir_1: DelB, printdir_2: DelA}, {printdir_1: DelB, printdir_2: DelB}]}
-
+: {'add_job_a': [{printdir_1: JobA}, {printdir_1: DelA}, {printdir_2: JobA}, {printdir_2: JobB}, {printdir_2: DelA}, {printdir_2: DelB}]}
 
 
 ** Answering the Investigative Question
@@ -230,7 +229,6 @@ print(e_obs)
 #+RESULTS:
 : {printdir_1: DelB, printdir_2: DelB}
 
-
 Having the observed evidence avaiable as such an =evidence_dict=, we
 can simply check whether the formula
 
@@ -250,8 +248,6 @@ for s in se[action]:
 #+RESULTS: check-s-in-e-obs-py
 : Found sufficient evidence for add_job_a:
 : 	{printdir_2: DelB}
-: Found sufficient evidence for add_job_a:
-: 	{printdir_1: DelB, printdir_2: DelB}
 
 * Solution Using Our Prototypical CLI-Tool
 :PROPERTIES:
@@ -274,6 +270,13 @@ echo $model | python3 ../src/calc_evidence.py -o csv -a "add_job_a" -t "sufficie
 #+end_src
 
 #+RESULTS: se-add-job-a
+: action,evidence
+: add_job_a,{printdir_1: JobA}
+: add_job_a,{printdir_1: DelA}
+: add_job_a,{printdir_2: JobA}
+: add_job_a,{printdir_2: JobB}
+: add_job_a,{printdir_2: DelA}
+: add_job_a,{printdir_2: DelB}
 
 
 ** Answering the Investigative Question
@@ -304,7 +307,6 @@ echo $PATTERN
 
 #+RESULTS: se-regex
 (\{printdir_1: JobA\}|\{printdir_1: DelA\}|\{printdir_2: JobA\}|\{printdir_2: JobB\}|\{printdir_2: DelA\}|\{printdir_2: DelB\})
-
 
 Again, we have to operate on the machine-readable version of the
 observed evidence as it was already presented when describing the

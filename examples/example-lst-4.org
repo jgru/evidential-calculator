@@ -28,6 +28,7 @@ print("Successfully imported evidence_set_calculation-module")
 #+RESULTS: prep
 : Successfully imported evidence_set_calculation-module
 
+
 * Model Specification
 ** GCL Specification
 #+name: ex-lst-4-gcl
@@ -102,12 +103,11 @@ MODULE main
 :END:
 ** Action-induced Evidence
 #+begin_src python
-is_compound = False  # Look at each variable individually
 actions = []  # Consider all actions
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.action_induced, actions, is_compound)
+    es = ep.calc_set(sbe.EvidenceType.action_induced)
     # Output evidence sets as table
     utils.output_evidence_set(es, "org")
 #print(es)
