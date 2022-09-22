@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import sys
-import time
 from collections.abc import Callable
 from enum import Enum
 from functools import partial
@@ -65,9 +64,7 @@ class NuSMVEvidenceProcessor:
 
         """
         self.model_data = model
-        self.parsed_model = pn.parser.parseAllString(
-            pn.parser.module, self.model_data
-        )
+        self.parsed_model = pn.parser.parseAllString(pn.parser.module, self.model_data)
         self.is_initialized = False
 
     def __enter__(self) -> self:
@@ -135,9 +132,7 @@ class NuSMVEvidenceProcessor:
 
         return _vars
 
-    def get_model_actions(
-        self, action: str = ACTION_NAME
-    ) -> list[pn.model.Identifier]:
+    def get_model_actions(self, action: str = ACTION_NAME) -> list[pn.model.Identifier]:
         """Retrieves the valuation of the model's variable that
         encodes the action. This variable should be a symbolic enum
         (of type pn.model.Scalar).
@@ -170,9 +165,7 @@ class NuSMVEvidenceProcessor:
         elif _type == EvidenceType.action_induced:
             return cls.check_action_induced_trace
         else:
-            raise NotImplemented(
-                "{_type.value} is unknown."
-            )
+            raise NotImplemented("{_type.value} is unknown.")
 
     def calc_set(
         self,
@@ -201,7 +194,6 @@ class NuSMVEvidenceProcessor:
             check_func = partial(check_func, actions)
 
         return self.calc_set_compound(check_func, actions)
-
 
     def calc_set_compound(
         self,
@@ -234,7 +226,6 @@ class NuSMVEvidenceProcessor:
         results = {}
         _vars = self.get_model_vars()
 
-
         for action in actions:
             # Collect variable combos to avoid "checking to much"
             hits = []
@@ -253,9 +244,7 @@ class NuSMVEvidenceProcessor:
                 # Construct the combinations
                 # e.g., [{x: 1, y: True}, {x:2, y=True},...}]
                 combos = [
-                    dict(zip(d.keys(), comb))
-                    for comb in product(*a)
-                    if len(comb)
+                    dict(zip(d.keys(), comb)) for comb in product(*a) if len(comb)
                 ]
 
                 # Pass the combinations to the check-functions,
@@ -271,7 +260,7 @@ class NuSMVEvidenceProcessor:
     @staticmethod
     def check_necessary_trace(
         action: pn.model.Identifier,
-        d: dict[pn.model.Identifier, pn.model.SimpleType],
+        var_val_mapping: dict[pn.model.Identifier, pn.model.SimpleType],
         action_name: str = ACTION_NAME,
     ) -> bool:
         """Checks whether the variable/value-combination is part of
@@ -303,7 +292,7 @@ class NuSMVEvidenceProcessor:
         """
         phi = (
             f"X ( G ( {action_name} = {action} ->  G ("
-            + " | ".join([f"{var} = {val}" for var, val in d.items()])
+            + " | ".join([f"{var} = {val}" for var, val in var_val_mapping.items()])
             + ")))"
         )
 
@@ -315,7 +304,7 @@ class NuSMVEvidenceProcessor:
     @staticmethod
     def check_sufficient_trace(
         action: pn.model.Identifier,
-        d: dict[pn.model.Identifier, pn.model.SimpleType],
+        var_val_mapping: dict[pn.model.Identifier, pn.model.SimpleType],
         action_name: str = ACTION_NAME,
     ) -> bool:
         """Checks whether the variable/value-combination(s) is/are
@@ -332,7 +321,7 @@ class NuSMVEvidenceProcessor:
         """
         phi = (
             f"(X {action_name} = {action}) V ("
-            + " | ".join([f"{var} != {val}" for var, val in d.items()])
+            + " | ".join([f"{var} != {val}" for var, val in var_val_mapping.items()])
             + ")"
         )
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(phi))
@@ -343,10 +332,12 @@ class NuSMVEvidenceProcessor:
         if not releases:
             return releases
 
-        return releases and not NuSMVEvidenceProcessor.is_unreachable(d)
+        return releases and not NuSMVEvidenceProcessor.is_unreachable(var_val_mapping)
 
     @staticmethod
-    def is_unreachable(d: dict[pn.model.Identifier, pn.model.SimpleType]) -> bool:
+    def is_unreachable(
+        var_val_mapping: dict[pn.model.Identifier, pn.model.SimpleType]
+    ) -> bool:
         """Checks whether a variable's valuation (or a combination of
         variable valuations) is actually reachable.
 
@@ -362,12 +353,12 @@ class NuSMVEvidenceProcessor:
         (De-morgan since we use the negation here).
 
         """
-        # Checks, if this combination of variables is actually reachable
+        # Checks if this combination of variables is actually reachable
         phi = (
             "G("
-            + " | ".join([f"({var} != {val})" for var, val in d.items()])
+            + " | ".join([f"({var} != {val})" for var, val in var_val_mapping.items()])
             + ")"
-       )
+        )
 
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(phi))
         return pn.mc.check_ltl_spec(spec)
@@ -376,7 +367,7 @@ class NuSMVEvidenceProcessor:
     def check_action_induced_trace(
         actions: list[pn.model.Identifier],
         action: pn.model.Identifier,
-        d: dict[pn.model.Identifier, pn.model.SimpleType],
+        var_val_mapping: dict[pn.model.Identifier, pn.model.SimpleType],
         action_name: str = "action",
     ) -> bool:
         """Checks whether the variable/value-combination is part of
@@ -393,7 +384,7 @@ class NuSMVEvidenceProcessor:
 
         If the a/m formula yields true, the evidence E is
         action-induced evidence meaning that it is direct effect of
-        the target action A.
+        the target action sigma.
 
         *Note:* The current implementation is oversimplified.
         Assignments to a value of a another variable would lead to
@@ -401,7 +392,7 @@ class NuSMVEvidenceProcessor:
         the current implementation.
 
         """
-        ae = " & ".join([f"{var} = {val}" for var, val in d.items()])
+        ae = " & ".join([f"{var} = {val}" for var, val in var_val_mapping.items()])
 
         phi = (
             f"(!{ae}) & (X G (({action_name} = {action}) -> ({ae}))) & G ("
@@ -410,7 +401,6 @@ class NuSMVEvidenceProcessor:
                     f"((!{ae}) -> X (({action_name} = {other}) -> (!{ae}))) "
                     for other in actions
                     if other != action
-
                 ]
             )
             + ")"
@@ -423,7 +413,7 @@ class NuSMVEvidenceProcessor:
         if not res:
             return res
 
-        return res and not NuSMVEvidenceProcessor.is_unreachable(d)
+        return res and not NuSMVEvidenceProcessor.is_unreachable(var_val_mapping)
 
     def sanitize_actions(
         self, actions: Union[pn.model.Identifier, list[pn.model.Identifier]]
@@ -436,9 +426,7 @@ class NuSMVEvidenceProcessor:
         model_actions = self.get_model_actions()
 
         # Ensure actions is a list
-        if isinstance(actions, str) or isinstance(
-            actions, pn.model.Identifier
-        ):
+        if isinstance(actions, str) or isinstance(actions, pn.model.Identifier):
             actions = [actions]
 
         # Either populate
