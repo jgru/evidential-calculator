@@ -193,7 +193,7 @@ class NuSMVEvidenceProcessor:
         """
         _type = EvidenceType.normalize(_type)
 
-        actions = self.check_actions(actions)
+        actions = self.sanitize_actions(actions)
 
         check_func = self.evidence_type_to_func(_type)
 
