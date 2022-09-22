@@ -269,59 +269,6 @@ class NuSMVEvidenceProcessor:
         return results
 
     @staticmethod
-    def check_action_induced_trace(
-        actions: list[pn.model.Identifier],
-        action: pn.model.Identifier,
-        d: dict[pn.model.Identifier, pn.model.SimpleType],
-        action_name: str = "action",
-    ):
-        """Checks whether the variable/value-combination is part of
-        the action-induced evidence set by applying the following
-        LTL-formula:
-
-        ! AE &
-        X G (sigma -> AE) &
-        G ^_{sigma' in Sigma'} ! AE -> X (sigma' -> not EA)
-
-        Here, the big conjunction symbol ^_ expresses a finite
-        conjunction over all other actions sigma' other than the
-        target action sigma
-
-        If the a/m formula yields true, the evidence E is
-        action-induced evidence meaning that it is direct effect of
-        the target action A.
-
-        *Note:* The current implementation is oversimplified.
-        Assignments to a value of a another variable would lead to
-        evidence formed by an implication, which cannot be handled by
-        the current implementation.
-
-        """
-        ae = " & ".join([f"{var} = {val}" for var, val in d.items()])
-
-        phi = (
-            f"(!{ae}) & (X G (({action_name} = {action}) -> ({ae}))) & G ("
-            + " & ".join(
-                [
-                    f"((!{ae}) -> X (({action_name} = {other}) -> (!{ae}))) "
-                    for other in actions
-                    if other != action
-
-                ]
-            )
-            + ")"
-        )
-        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(phi))
-        res = pn.mc.check_ltl_spec(spec)
-
-        # Early exit, since the trace is definitely not part of the evidence set
-
-        if not res:
-            return res
-
-        return res and not NuSMVEvidenceProcessor.is_unreachable(d)
-
-    @staticmethod
     def check_necessary_trace(
         action: pn.model.Identifier,
         d: dict[pn.model.Identifier, pn.model.SimpleType],
@@ -425,9 +372,62 @@ class NuSMVEvidenceProcessor:
         spec = pn.prop.Spec(pn.parser.parse_ltl_spec(phi))
         return pn.mc.check_ltl_spec(spec)
 
-    def check_actions(
+    @staticmethod
+    def check_action_induced_trace(
+        actions: list[pn.model.Identifier],
+        action: pn.model.Identifier,
+        d: dict[pn.model.Identifier, pn.model.SimpleType],
+        action_name: str = "action",
+    ) -> bool:
+        """Checks whether the variable/value-combination is part of
+        the action-induced evidence set by applying the following
+        LTL-formula:
+
+        ! AE &
+        X G (sigma -> AE) &
+        G ^_{sigma' in Sigma'} ! AE -> X (sigma' -> not EA)
+
+        Here, the big conjunction symbol ^_ expresses a finite
+        conjunction over all other actions sigma' other than the
+        target action sigma
+
+        If the a/m formula yields true, the evidence E is
+        action-induced evidence meaning that it is direct effect of
+        the target action A.
+
+        *Note:* The current implementation is oversimplified.
+        Assignments to a value of a another variable would lead to
+        evidence formed by an implication, which cannot be handled by
+        the current implementation.
+
+        """
+        ae = " & ".join([f"{var} = {val}" for var, val in d.items()])
+
+        phi = (
+            f"(!{ae}) & (X G (({action_name} = {action}) -> ({ae}))) & G ("
+            + " & ".join(
+                [
+                    f"((!{ae}) -> X (({action_name} = {other}) -> (!{ae}))) "
+                    for other in actions
+                    if other != action
+
+                ]
+            )
+            + ")"
+        )
+        spec = pn.prop.Spec(pn.parser.parse_ltl_spec(phi))
+        res = pn.mc.check_ltl_spec(spec)
+
+        # Early exit, since the trace is definitely not part of the evidence set
+
+        if not res:
+            return res
+
+        return res and not NuSMVEvidenceProcessor.is_unreachable(d)
+
+    def sanitize_actions(
         self, actions: Union[pn.model.Identifier, list[pn.model.Identifier]]
-    ):
+    ) -> list[pn.model.Identifier]:
         """Sanitizes the received action(s). If the passed parameter
         is an empty list or None, all possible actions from the model
         are used.
