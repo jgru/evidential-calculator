@@ -1,65 +1,65 @@
 MODULE main
     VAR
         action: {add_job_a, add_job_b, take_job, nop};
-        printdir_1: {Empty, JobA, JobB, DelA, DelB};
-        printdir_2: {Empty, JobA, JobB, DelA, DelB};
+        dir_entry_1: {Empty, JobA, JobB, DelA, DelB};
+        dir_entry_2: {Empty, JobA, JobB, DelA, DelB};
     INIT
         action = nop
     INIT
-        printdir_1 = Empty
+        dir_entry_1 = Empty
     INIT
-        printdir_2 = Empty
+        dir_entry_2 = Empty
     DEFINE
-        is_printdir_1_usable   := (printdir_1 = Empty | printdir_1 = DelA | printdir_1 = DelB);
-        is_printdir_2_usable   := (printdir_2 = Empty | printdir_2 = DelA | printdir_2 = DelB);
-        is_job_a   := (printdir_1 = JobA) | (printdir_2 = JobA);
-        is_job_b   := (printdir_1 = JobB) | (printdir_2 = JobB);  
+        is_dir_entry_1_usable := (dir_entry_1 = Empty | dir_entry_1 = DelA | dir_entry_1 = DelB);
+        is_dir_entry_2_usable := (dir_entry_2 = Empty | dir_entry_2 = DelA | dir_entry_2 = DelB);
+        is_job_a   := (dir_entry_1 = JobA) | (dir_entry_2 = JobA);
+        is_job_b   := (dir_entry_1 = JobB) | (dir_entry_2 = JobB);
     ASSIGN
-        next(printdir_1) := 
+        next(dir_entry_1) :=
            case
                next(action) = add_job_a:
                  case
-                   is_printdir_1_usable : JobA;
-                   TRUE: printdir_1;
+                   is_dir_entry_1_usable : JobA;
+                   TRUE: dir_entry_1;
                  esac;
-               next(action) = add_job_b: 
+               next(action) = add_job_b:
                  case
-                   is_printdir_1_usable : JobB;
-                   TRUE: printdir_1;
+                   is_dir_entry_1_usable : JobB;
+                   TRUE: dir_entry_1;
                  esac;
-               next(action) = take_job: 
+               next(action) = take_job:
                  case
-                   !is_printdir_1_usable :
+                   !is_dir_entry_1_usable :
                      case
-                       printdir_1 = JobA : DelA;
-                       printdir_1 = JobB : DelB;
+                       dir_entry_1 = JobA : DelA;
+                       dir_entry_1 = JobB : DelB;
                      esac;
-                   TRUE: printdir_1;
+                   TRUE: dir_entry_1;
                  esac;
-              TRUE: printdir_1;
+              TRUE: dir_entry_1;
           esac;
-        next(printdir_2) := 
+        next(dir_entry_2) :=
            case
                next(action) = add_job_a:
                  case
-                   !is_printdir_1_usable & is_printdir_2_usable : JobA;
-                   TRUE: printdir_2;
+                   !is_dir_entry_1_usable & is_dir_entry_2_usable : JobA;
+                   TRUE: dir_entry_2;
                  esac;
-               next(action) = add_job_b: 
+               next(action) = add_job_b:
                  case
-                   !is_printdir_1_usable & is_printdir_2_usable : JobB;
-                   TRUE: printdir_2;
+                   !is_dir_entry_1_usable & is_dir_entry_2_usable : JobB;
+                   TRUE: dir_entry_2;
                  esac;
-               next(action) = take_job: 
+               next(action) = take_job:
                  case
-                  is_printdir_1_usable & !is_printdir_2_usable :
+                  is_dir_entry_1_usable & !is_dir_entry_2_usable :
                      case
-                       printdir_2 = JobA : DelA;
-                       printdir_2 = JobB : DelB;
+                       dir_entry_2 = JobA : DelA;
+                       dir_entry_2 = JobB : DelB;
                      esac;
-                   TRUE: printdir_2;
+                   TRUE: dir_entry_2;
                  esac;
-               TRUE: printdir_2; 
+               TRUE: dir_entry_2;
           esac;
 
     TRANS
@@ -67,6 +67,6 @@ MODULE main
     TRANS
         next(action) = add_job_b -> !is_job_b
     TRANS
-        next(action) = take_job -> !is_printdir_1_usable | !is_printdir_2_usable
+        next(action) = take_job -> !is_dir_entry_1_usable | !is_dir_entry_2_usable
     TRANS
         next(action) = nop -> TRUE
