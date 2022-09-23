@@ -73,65 +73,65 @@ in the listing below.
 MODULE main
     VAR
         action: {add_job_a, add_job_b, take_job, nop};
-        printdir_1: {Empty, JobA, JobB, DelA, DelB};
-        printdir_2: {Empty, JobA, JobB, DelA, DelB};
+        dir_entry_1: {Empty, JobA, JobB, DelA, DelB};
+        dir_entry_2: {Empty, JobA, JobB, DelA, DelB};
     INIT
         action = nop
     INIT
-        printdir_1 = Empty
+        dir_entry_1 = Empty
     INIT
-        printdir_2 = Empty
+        dir_entry_2 = Empty
     DEFINE
-        is_printdir_1_usable   := (printdir_1 = Empty | printdir_1 = DelA | printdir_1 = DelB);
-        is_printdir_2_usable   := (printdir_2 = Empty | printdir_2 = DelA | printdir_2 = DelB);
-        is_job_a   := (printdir_1 = JobA) | (printdir_2 = JobA);
-        is_job_b   := (printdir_1 = JobB) | (printdir_2 = JobB);
+        is_dir_entry_1_usable   := (dir_entry_1 = Empty | dir_entry_1 = DelA | dir_entry_1 = DelB);
+        is_dir_entry_2_usable   := (dir_entry_2 = Empty | dir_entry_2 = DelA | dir_entry_2 = DelB);
+        is_job_a   := (dir_entry_1 = JobA) | (dir_entry_2 = JobA);
+        is_job_b   := (dir_entry_1 = JobB) | (dir_entry_2 = JobB);
     ASSIGN
-        next(printdir_1) :=
+        next(dir_entry_1) :=
            case
                next(action) = add_job_a:
                  case
-                   is_printdir_1_usable : JobA;
-                   TRUE: printdir_1;
+                   is_dir_entry_1_usable : JobA;
+                   TRUE: dir_entry_1;
                  esac;
                next(action) = add_job_b:
                  case
-                   is_printdir_1_usable : JobB;
-                   TRUE: printdir_1;
+                   is_dir_entry_1_usable : JobB;
+                   TRUE: dir_entry_1;
                  esac;
                next(action) = take_job:
                  case
-                   !is_printdir_1_usable :
+                   !is_dir_entry_1_usable :
                      case
-                       printdir_1 = JobA : DelA;
-                       printdir_1 = JobB : DelB;
+                       dir_entry_1 = JobA : DelA;
+                       dir_entry_1 = JobB : DelB;
                      esac;
-                   TRUE: printdir_1;
+                   TRUE: dir_entry_1;
                  esac;
-              TRUE: printdir_1;
+              TRUE: dir_entry_1;
           esac;
-        next(printdir_2) :=
+        next(dir_entry_2) :=
            case
                next(action) = add_job_a:
                  case
-                   !is_printdir_1_usable & is_printdir_2_usable : JobA;
-                   TRUE: printdir_2;
+                   !is_dir_entry_1_usable & is_dir_entry_2_usable : JobA;
+                   TRUE: dir_entry_2;
                  esac;
                next(action) = add_job_b:
                  case
-                   !is_printdir_1_usable & is_printdir_2_usable : JobB;
-                   TRUE: printdir_2;
+                   !is_dir_entry_1_usable & is_dir_entry_2_usable : JobB;
+                   TRUE: dir_entry_2;
                  esac;
                next(action) = take_job:
                  case
-                  is_printdir_1_usable & !is_printdir_2_usable :
+                  is_dir_entry_1_usable & !is_dir_entry_2_usable :
                      case
-                       printdir_2 = JobA : DelA;
-                       printdir_2 = JobB : DelB;
+                       dir_entry_2 = JobA : DelA;
+                       dir_entry_2 = JobB : DelB;
                      esac;
-                   TRUE: printdir_2;
+                   TRUE: dir_entry_2;
                  esac;
-               TRUE: printdir_2;
+               TRUE: dir_entry_2;
           esac;
 
     TRANS
@@ -139,7 +139,7 @@ MODULE main
     TRANS
         next(action) = add_job_b -> !is_job_b
     TRANS
-        next(action) = take_job -> !is_printdir_1_usable | !is_printdir_2_usable
+        next(action) = take_job -> !is_dir_entry_1_usable | !is_dir_entry_2_usable
     TRANS
         next(action) = nop -> TRUE
 #+end_example
@@ -202,8 +202,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 #+end_src
 
 #+RESULTS:
-: {'add_job_a': [{printdir_1: JobA}, {printdir_1: DelA}, {printdir_2: JobA}, {printdir_2: JobB}, {printdir_2: DelA}, {printdir_2: DelB}]}
-
+: {'add_job_a': [{dir_entry_1: JobA}, {dir_entry_1: DelA}, {dir_entry_2: JobA}, {dir_entry_2: JobB}, {dir_entry_2: DelA}, {dir_entry_2: DelB}]}
 
 ** Answering the Investigative Question
 
@@ -212,8 +211,8 @@ evidence has be translated to the following form...
 
 #+name: e-obs
 #+begin_example
-{printdir_1: DelB}
-{printdir_2: DelB}
+dir_entry_1=DelB
+dir_entry_2=DelB
 #+end_example
 
 ...and read as a list of dicts.
@@ -221,13 +220,13 @@ evidence has be translated to the following form...
 #+begin_src python :var e_obs_raw=e-obs :results output verbatim
 entries = [l.strip() for l in e_obs_raw.split("\n") if l]
 e_obs = dict((pn.model.Identifier(a.strip()), pn.model.Identifier(b.strip()))
-                     for a, b in (e[1:-1].split(':')
+                     for a, b in (e.split('=')
                                   for e in entries))
 print(e_obs)
 #+end_src
 
 #+RESULTS:
-: {printdir_1: DelB, printdir_2: DelB}
+: {dir_entry_1: DelB, dir_entry_2: DelB}
 
 Having the observed evidence avaiable as such an =evidence_dict=, we
 can simply check whether the formula
@@ -247,7 +246,8 @@ for s in se[action]:
 
 #+RESULTS: check-s-in-e-obs-py
 : Found sufficient evidence for add_job_a:
-: 	{printdir_2: DelB}
+: 	{dir_entry_2: DelB}
+
 
 * Solution Using Our Prototypical CLI-Tool
 :PROPERTIES:
@@ -271,12 +271,7 @@ echo $model | python3 ../src/calc_evidence.py -o csv -a "add_job_a" -t "sufficie
 
 #+RESULTS: se-add-job-a
 : action,evidence
-: add_job_a,{printdir_1: JobA}
-: add_job_a,{printdir_1: DelA}
-: add_job_a,{printdir_2: JobA}
-: add_job_a,{printdir_2: JobB}
-: add_job_a,{printdir_2: DelA}
-: add_job_a,{printdir_2: DelB}
+: add_job_a,dir_entry_1=JobA | dir_entry_1=DelA | dir_entry_2=JobA | dir_entry_2=JobB | dir_entry_2=DelA | dir_entry_2=DelB
 
 
 ** Answering the Investigative Question
@@ -289,24 +284,14 @@ in the following src-block.
 #+name: se-regex
 #+begin_src shell :var traces=se-add-job-a :results output verbatim raw
 PATTERN="("
-while read line
-do
-  if ! [[ (-z "$line" || "$line" == "\n"1 ) ]]
-  then
-     if ! [[ "$PATTERN" == *"(" ]]
-     then
-         PATTERN+="|"
-     fi
-     tline=$(echo $line | sed 's/{/\\{/g' | sed 's/}/\\}/g')
-     PATTERN+="${tline}"
-  fi
-done <<< $(echo $traces | cut -d"," -f2 | tail -n+2)
+PATTERN+=$(echo $traces | cut -d"," -f2 | tail -n+2 | sed 's/\s//g')
 PATTERN+=")"
+
 echo $PATTERN
 #+end_src
 
 #+RESULTS: se-regex
-(\{printdir_1: JobA\}|\{printdir_1: DelA\}|\{printdir_2: JobA\}|\{printdir_2: JobB\}|\{printdir_2: DelA\}|\{printdir_2: DelB\})
+(dir_entry_1=JobA|dir_entry_1=DelA|dir_entry_2=JobA|dir_entry_2=JobB|dir_entry_2=DelA|dir_entry_2=DelB)
 
 Again, we have to operate on the machine-readable version of the
 observed evidence as it was already presented when describing the
@@ -320,9 +305,8 @@ echo $evidence_obs | grep -o -E $pattern
 #+end_src
 
 #+RESULTS: check-s-in-e-obs
-: {printdir_2: DelB}
-
+: dir_entry_2=DelB
 
 Since there is such an element \(s \in SE(add_job_a,M)\) (namely
-={printdir_2: DelB}=) that exists in \(E_{obs}\), Alice must have
+=dir_entry_2=DelB=) that exists in \(E_{obs}\), Alice must have
 printed at least once.
