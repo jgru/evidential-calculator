@@ -43,7 +43,6 @@ optional arguments:
                         Type of evidence to calculate
   -o {csv,raw}, --output-format {csv,raw}
                         Output format of the calculated sets
-  -c, --compound        Calculate compound traces
 #+end_example
 ** Usage via Docker
 :PROPERTIES:
