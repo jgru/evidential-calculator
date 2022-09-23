@@ -293,6 +293,7 @@ echo $PATTERN
 #+RESULTS: se-regex
 (dir_entry_1=JobA|dir_entry_1=DelA|dir_entry_2=JobA|dir_entry_2=JobB|dir_entry_2=DelA|dir_entry_2=DelB)
 
+
 Again, we have to operate on the machine-readable version of the
 observed evidence as it was already presented when describing the
 case. Based on this representation, we check whether there exists an
