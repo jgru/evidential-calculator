@@ -59,7 +59,7 @@ Then, use it by mapping the current working directory into the containers
 =/data=-directory and providing the exemplary model to the entrypoint:
 
 #+begin_src shell
-docker run -it -v $(pwd):/data evic calc_evidence.py /data/examples/models/acme-model.smv
+docker run -it -v $(pwd):/data evic calc_evidence.py -t sufficient /data/examples/models/lst-4.smv
 #+end_src
 
 * Installation
