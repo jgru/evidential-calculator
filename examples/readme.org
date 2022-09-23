@@ -7,10 +7,10 @@ This directory contains the literate examples accompanying our paper titled
 Forensic Event Reconstruction"/
 
 Each notebook's name references a listing in the paper.
-- [[./example-lst-1.org][Listing 1: Simple introduction]]
-- [[./example-lst-2.org][Listing 2: Unreachable action]]
-- [[./example-lst-3.org][Listing 3: Semaphore]]
-- [[./example-lst-4.org][Listing 4: Multiple effects]]
+- [[file:example-lst-1.org][Listing 1: Simple introduction]]
+- [[file:example-lst-2.org][Listing 2: Unreachable action]]
+- [[file:example-lst-3.org][Listing 3: Semaphore]]
+- [[file:example-lst-4.org][Listing 4: Multiple effects]]
 
 * Directory Contents
 Within this directory, you find the following =org-mode=-notebooks:
