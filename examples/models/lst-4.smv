@@ -1,0 +1,50 @@
+MODULE main
+    VAR
+        action: {a0, a1, a2, a3, unconstrain};
+        a: boolean;
+        b: boolean;
+        c: boolean;
+        d: boolean;
+    INIT
+        a = FALSE
+    INIT
+        b = FALSE
+    INIT
+        c = FALSE
+    INIT
+        d = FALSE
+    INIT
+        action = unconstrain
+    ASSIGN
+        next(a) :=
+            case
+                next(action) = a0: TRUE;
+                TRUE: a;
+            esac;
+        next(b) :=
+            case
+                next(action) = a1: TRUE;
+                next(action) = a3: FALSE;
+                TRUE: b;
+            esac;
+        next(c) :=
+            case
+                next(action) = a2: TRUE;
+                TRUE: c;
+            esac;
+        next(d) :=
+            case
+                next(action) = a2: FALSE;
+                next(action) = a3: TRUE;
+                TRUE: d;
+            esac;
+    TRANS
+        next(action) = a0 -> TRUE
+    TRANS
+        next(action) = a1 -> a = TRUE
+    TRANS
+        next(action) = a2 -> b = TRUE
+    TRANS
+        next(action) = a3 -> b = TRUE
+    TRANS
+        next(action) = unconstrain -> TRUE
