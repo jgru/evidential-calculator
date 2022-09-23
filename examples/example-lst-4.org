@@ -104,12 +104,13 @@ MODULE main
 ** Action-induced Evidence
 #+begin_src python
 actions = []  # Consider all actions
+_type = sbe.EvidenceType.action_induced 
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.action_induced)
+    es = ep.calc_set(_type)
     # Output evidence sets as table
-    utils.output_evidence_set(es, "org")
+    utils.output_evidence_set(es, _type, "org")
 #print(es)
 #+end_src
 
@@ -117,13 +118,13 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Desc                    | Assignments |
 |-------------------------+-------------|
-| Evidence of a0          | {a: TRUE}   |
+| Evidence of a0          | a = TRUE    |
 |-------------------------+-------------|
-| Evidence of a1          | {b: TRUE}   |
+| Evidence of a1          | b = TRUE    |
 |-------------------------+-------------|
-| Evidence of a2          | {c: TRUE}   |
+| Evidence of a2          | c = TRUE    |
 |-------------------------+-------------|
-| Evidence of a3          | {d: TRUE}   |
+| Evidence of a3          | d = TRUE    |
 |-------------------------+-------------|
 | Evidence of unconstrain |             |
 |-------------------------+-------------|
@@ -132,105 +133,56 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 ** Sufficient Evidence
 #+begin_src python
 actions = []
+_type = sbe.EvidenceType.sufficient
+
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.sufficient, actions)
+    es = ep.calc_set(_type, actions)
     # Output evidence sets as table
-    utils.output_evidence_set(es, "org")
+    utils.output_evidence_set(es, _type, "org")
 #print(es)
 #+end_src
 
 #+RESULTS:
-|-------------------------+---------------------|
-| Desc                    | Assignments         |
-|-------------------------+---------------------|
-| Evidence of a0          | {a: TRUE}           |
-|                         | {b: TRUE}           |
-|                         | {c: TRUE}           |
-|                         | {d: TRUE}           |
-|-------------------------+---------------------|
-| Evidence of a1          | {b: TRUE}           |
-|                         | {c: TRUE}           |
-|                         | {d: TRUE}           |
-|-------------------------+---------------------|
-| Evidence of a2          | {c: TRUE}           |
-|-------------------------+---------------------|
-| Evidence of a3          | {d: TRUE}           |
-|                         | {b: FALSE, c: TRUE} |
-|-------------------------+---------------------|
-| Evidence of unconstrain |                     |
-|-------------------------+---------------------|
+|-------------------------+----------------------------------------------|
+| Desc                    | Assignments                                  |
+|-------------------------+----------------------------------------------|
+| Evidence of a0          | a = TRUE \/ b = TRUE \/ c = TRUE \/ d = TRUE |
+|-------------------------+----------------------------------------------|
+| Evidence of a1          | b = TRUE \/ c = TRUE \/ d = TRUE             |
+|-------------------------+----------------------------------------------|
+| Evidence of a2          | c = TRUE                                     |
+|-------------------------+----------------------------------------------|
+| Evidence of a3          | d = TRUE \/ ( b = FALSE /\ c = TRUE )        |
+|-------------------------+----------------------------------------------|
+| Evidence of unconstrain |                                              |
+|-------------------------+----------------------------------------------|
 
 ** Necessary Evidence
 #+begin_src python
 actions = []  # Consider all actions
+_type = sbe.EvidenceType.necessary
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.necessary, actions)
+    es = ep.calc_set(_type, actions)
     # Output evidence sets as table
-    utils.output_evidence_set(es, "org")
+    utils.output_evidence_set(es, _type, "org")
 #+end_src
 
 #+RESULTS:
-|-------------------------+------------------------------|
-| Desc                    | Assignments                  |
-|-------------------------+------------------------------|
-| Evidence of a0          | {a: TRUE}                    |
-|                         | {b: TRUE, c: FALSE, d: TRUE} |
-|-------------------------+------------------------------|
-| Evidence of a1          | {a: TRUE}                    |
-|                         | {b: TRUE, d: TRUE}           |
-|-------------------------+------------------------------|
-| Evidence of a2          | {a: TRUE}                    |
-|                         | {c: TRUE}                    |
-|                         | {b: TRUE, d: TRUE}           |
-|-------------------------+------------------------------|
-| Evidence of a3          | {a: TRUE}                    |
-|                         | {b: TRUE, d: TRUE}           |
-|                         | {c: TRUE, d: TRUE}           |
-|-------------------------+------------------------------|
-| Evidence of unconstrain | {a: TRUE, b: FALSE}          |
-|                         | {a: TRUE, c: FALSE}          |
-|                         | {a: TRUE, d: FALSE}          |
-|                         | {b: TRUE, c: FALSE, d: TRUE} |
-|-------------------------+------------------------------|
+|-------------------------+------------------------------------------------------------------------------------------------------------------------------|
+| Desc                    | Assignments                                                                                                                  |
+|-------------------------+------------------------------------------------------------------------------------------------------------------------------|
+| Evidence of a0          | a = TRUE /\ ( b = TRUE \/ c = FALSE \/ d = TRUE )                                                                            |
+|-------------------------+------------------------------------------------------------------------------------------------------------------------------|
+| Evidence of a1          | a = TRUE /\ ( b = TRUE \/ d = TRUE )                                                                                         |
+|-------------------------+------------------------------------------------------------------------------------------------------------------------------|
+| Evidence of a2          | a = TRUE /\ c = TRUE /\ ( b = TRUE \/ d = TRUE )                                                                             |
+|-------------------------+------------------------------------------------------------------------------------------------------------------------------|
+| Evidence of a3          | a = TRUE /\ ( b = TRUE \/ d = TRUE ) /\ ( c = TRUE \/ d = TRUE )                                                             |
+|-------------------------+------------------------------------------------------------------------------------------------------------------------------|
+| Evidence of unconstrain | ( a = TRUE \/ b = FALSE ) /\ ( a = TRUE \/ c = FALSE ) /\ ( a = TRUE \/ d = FALSE ) /\ ( b = TRUE \/ c = FALSE \/ d = TRUE ) |
+|-------------------------+------------------------------------------------------------------------------------------------------------------------------|
 
-Since the necessary evidence presented above is very limited and
-incomplete, we now also consider the compound traces:
-
-#+begin_src python
-is_compound = True  # Look at each variable individually
-actions = []  # Consider all actions
-
-with sbe.NuSMVEvidenceProcessor(model_data) as ep:
-    # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.necessary, actions, is_compound)
-    # Output evidence sets as table
-    utils.output_evidence_set(es, "org")
-#+end_src
-
-#+RESULTS:
-|-------------------------+------------------------------|
-| Desc                    | Assignments                  |
-|-------------------------+------------------------------|
-| Evidence of a0          | {a: TRUE}                    |
-|                         | {b: TRUE, c: FALSE, d: TRUE} |
-|-------------------------+------------------------------|
-| Evidence of a1          | {a: TRUE}                    |
-|                         | {b: TRUE, d: TRUE}           |
-|-------------------------+------------------------------|
-| Evidence of a2          | {a: TRUE}                    |
-|                         | {c: TRUE}                    |
-|                         | {b: TRUE, d: TRUE}           |
-|-------------------------+------------------------------|
-| Evidence of a3          | {a: TRUE}                    |
-|                         | {b: TRUE, d: TRUE}           |
-|                         | {c: TRUE, d: TRUE}           |
-|-------------------------+------------------------------|
-| Evidence of unconstrain | {a: TRUE, b: FALSE}          |
-|                         | {a: TRUE, c: FALSE}          |
-|                         | {a: TRUE, d: FALSE}          |
-|                         | {b: TRUE, c: FALSE, d: TRUE} |
-|-------------------------+------------------------------|
 

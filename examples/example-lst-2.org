@@ -77,12 +77,13 @@ MODULE main
 ** Action-induced Evidence
 #+begin_src python
 actions = []  # Consider all actions in the model
+_type = sbe.EvidenceType.action_induced
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.action_induced, actions)
+    es = ep.calc_set(_type, actions)
     # Output evidence sets as table
-    utils.output_evidence_set(es, "org")
+    utils.output_evidence_set(es, _type, "org")
 #print(es)
 #+end_src
 
@@ -90,7 +91,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Desc                    | Assignments |
 |-------------------------+-------------|
-| Evidence of a0          | {b: TRUE}   |
+| Evidence of a0          | b = TRUE    |
 |-------------------------+-------------|
 | Evidence of a1          |             |
 |-------------------------+-------------|
@@ -102,12 +103,13 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 ** Sufficient Evidence
 #+begin_src python
 actions = []  # Consider all actions in the model
+_type = sbe.EvidenceType.sufficient
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.sufficient, actions)
+    es = ep.calc_set(_type, actions)
     # Output evidence sets as table
-    utils.output_evidence_set(es, "org")
+    utils.output_evidence_set(es, _type, "org")
 #print(es)
 #+end_src
 
@@ -115,7 +117,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Desc                    | Assignments |
 |-------------------------+-------------|
-| Evidence of a0          | {b: TRUE}   |
+| Evidence of a0          | b = TRUE    |
 |-------------------------+-------------|
 | Evidence of a1          |             |
 |-------------------------+-------------|
@@ -125,34 +127,31 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 ** Necessary Evidence
 #+begin_src python
 actions = None  # Consider all actions in the model
+_type = sbe.EvidenceType.necessary
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    es = ep.calc_set(sbe.EvidenceType.necessary, actions)
+    es = ep.calc_set(_type, actions)
     # Output evidence sets as table
-    utils.output_evidence_set(es, "org")
+    utils.output_evidence_set(es, _type, "org")
 #print(es)
 #+end_src
 
 #+RESULTS:
-|-------------------------+-------------|
-| Desc                    | Assignments |
-|-------------------------+-------------|
-| Evidence of a0          | {a: FALSE}  |
-|                         | {b: TRUE}   |
-|-------------------------+-------------|
-| Evidence of a1          | {a: TRUE}   |
-|                         | {a: FALSE}  |
-|                         | {b: TRUE}   |
-|                         | {b: FALSE}  |
-|-------------------------+-------------|
-| Evidence of unconstrain | {a: FALSE}  |
-|-------------------------+-------------|
+|-------------------------+------------------------------------------------|
+| Desc                    | Assignments                                    |
+|-------------------------+------------------------------------------------|
+| Evidence of a0          | a = FALSE /\ b = TRUE                          |
+|-------------------------+------------------------------------------------|
+| Evidence of a1          | a = TRUE /\ a = FALSE /\ b = TRUE /\ b = FALSE |
+|-------------------------+------------------------------------------------|
+| Evidence of unconstrain | a = FALSE                                      |
+|-------------------------+------------------------------------------------|
 
 Given this inconstent necessary evidence for =a1=, which has to be
 read as
 
-=a=True /\ a=False /\ b=True /\ b=False=
+=a=TRUE /\ a=FALSE /\ b=TRUE /\ b=FALSE=
 
 gives a hint on the impossibility of the execution of =a1=.
 
