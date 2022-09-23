@@ -6,12 +6,6 @@ This directory contains the literate examples accompanying our paper titled
 /"Formally Characterizing (and Proving) Necessary and Sufficient Evidence in
 Forensic Event Reconstruction"/
 
-Each notebook's name references a listing in the paper.
-- [[file:example-lst-1.org][Listing 1: Simple introduction]]
-- [[file:example-lst-2.org][Listing 2: Unreachable action]]
-- [[file:example-lst-3.org][Listing 3: Semaphore]]
-- [[file:example-lst-4.org][Listing 4: Multiple effects]]
-
 * Directory Contents
 Within this directory, you find the following =org-mode=-notebooks:
 
@@ -22,15 +16,17 @@ tree
 #+RESULTS:
 #+begin_example
 .
-├── example-acme.org
-├── example-lst-1.org
-├── example-lst-2.org
-├── example-lst-3.org
-├── example-lst-4.org
+├── acme.org
+├── lst-1.org
+├── lst-2.org
+├── lst-3.org
+├── lst-4.org
 └── readme.org
 
 1 directory, 6 files
 #+end_example
+
+Each notebook's name references a listing in the paper.
 
 * Preparations to Run the Literate Examples
 Although the literate notebooks are already comprehensive you might want to
