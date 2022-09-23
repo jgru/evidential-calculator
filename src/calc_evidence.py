@@ -35,7 +35,7 @@ def main():
         es = ep.calc_set(
             EvidenceType.normalize(args.etype), [args.action]
         )
-        output_evidence_set(es, args.output_format)
+        output_evidence_set(es, args.output_format, args.etype)
 
 
 def parse_args():

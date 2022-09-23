@@ -7,6 +7,7 @@ import csv
 import io
 from enum import Enum
 from typing import Union
+from .smv_based_evidence import EvidenceType
 
 
 class EvidenceFormat(Enum):
@@ -18,18 +19,60 @@ class EvidenceFormat(Enum):
         return str.__str__(self)
 
 
-def output_evidence_set(es, output_format: Union[EvidenceFormat, str]):
+def output_evidence_set(
+    es: dict[str, tuple[str, str]],
+    _type: Union[EvidenceType, str],
+    output_format: Union[EvidenceFormat, str]
+):
+
+    assert _type != None, "Specify type!"
+    _type = EvidenceType.normalize(_type)
+
     if output_format == EvidenceFormat.csv.value:
-        output = construct_csv(es)
+        output = construct_csv(es, _type)
     elif output_format == EvidenceFormat.org.value:
-        output = construct_org_table(es)
+        output = construct_org_table(es, _type)
     else:
         output = es
 
     print(output)
 
 
-def construct_csv(action_to_evidence: dict[str, tuple[str, str]]):
+AND = r" & "
+OR = r" | "
+
+ALT_AND = r" /\ "
+ALT_OR = r" \/ "
+
+
+def evidence_to_formula(
+    evidence: list[tuple[str, str]], _type: EvidenceType, use_alt_syms: bool = False
+):
+    # Determin style of boolean connectives
+    _and = AND if not use_alt_syms else ALT_AND
+    _or = OR if not use_alt_syms else ALT_OR
+
+    elem_connective = _and if _type == EvidenceType.necessary else _or
+    trace_connective = _or if _type == EvidenceType.necessary else _and
+
+    formula = ""
+    is_first = True
+
+    for e in evidence:
+        pred = trace_connective.join([f"{e} = {v}" for e, v in e.items()])
+        if len(e.items()) > 1:
+            pred = f"( {pred} )"
+
+        if is_first:
+            is_first = False
+            formula += f"{pred}"
+        else:
+            formula += f"{elem_connective}{pred}"
+
+    return formula
+
+
+def construct_csv(action_to_evidence: dict[str, tuple[str, str]], _type: EvidenceType):
     output = io.StringIO()
     header = ["action", "evidence"]
     w = csv.writer(
@@ -42,18 +85,17 @@ def construct_csv(action_to_evidence: dict[str, tuple[str, str]]):
 
     w.writerow(header)
 
-    for key in action_to_evidence:
-        for evidences in action_to_evidence[key]:
-            evidences = [key, evidences]
-            w.writerow(evidences)
+    for action in sorted(action_to_evidence):
+        formula = evidence_to_formula(action_to_evidence[action], _type)
+        w.writerow([action, formula])
+
     return output.getvalue().strip("\r\n").strip("\r").strip("\n")
 
 
-def construct_org_table(action_to_evidence, title="Evidence"):
-    """
-    A very naive (and incomplete) implementation to print evidence
-    sets as org-mode-tables. This should only be used with org-babel
-    and `:results output table raw'
+def construct_org_table(action_to_evidence, _type, title="Evidence"):
+    """A very naive implementation to print evidence sets as
+    org-mode-tables. This should _only_ be used with org-babel and
+    `:results output table raw'
     """
     org_table_string = ""
     l = len(f"{max(action_to_evidence.keys(), key=len)} of {title} ")
@@ -61,18 +103,35 @@ def construct_org_table(action_to_evidence, title="Evidence"):
     row_sep = f"|{l * '--'}|\n"
     col_heading_1 = "Desc"
     col_heading_2 = "Assignments"
-    org_table_string = f"{row_sep}| {col_heading_1} {(l//2- len(col_heading_1)) * ' ' }| {col_heading_2} {(l//2- len(col_heading_2)) * ' '}\n"
+    org_table_string = (
+        f"{row_sep}| "
+        + f"{col_heading_1} {(l//2- len(col_heading_1)) * ' ' }|"
+        + f" {col_heading_2} {(l//2- len(col_heading_2)) * ' '}\n"
+    )
 
-    for key in sorted(action_to_evidence.keys()):
-        h = f"{title} of {key}"
+    # Construct entries for each action
+    for action in sorted(action_to_evidence.keys()):
+        h = f"{title} of {action}"
         h += (l - len(h)) * " "
         org_table_string += row_sep
-        values = action_to_evidence[key]
-        if not values:
-            org_table_string += f"| {h:>5} | \n"
-        for value in values:
-            org_table_string += f"| {h:>5} | {value} |\n"
-            h = " " * l
+
+        # Raw variable/value assignments
+        if not _type:
+            values = action_to_evidence[action]
+            if not values:
+                org_table_string += f"| {h:>5} | \n"
+            for value in values:
+                org_table_string += f"| {h:>5} | {value} |\n"
+                h = " " * l
+        # Formula
+        else:
+            org_table_string += (
+                f"| {h:>5} |"
+                + evidence_to_formula(
+                    action_to_evidence[action], _type, use_alt_syms=True
+                )
+                + "|\n"
+            )
 
     org_table_string += row_sep
 
