@@ -266,11 +266,12 @@ Alice sending a print job.
 #+name: se-add-job-a
 #+begin_src shell :var model=ex-acme-smv :results output verbatim
 source ../venv/bin/activate
-echo $model | python3 ../src/calc_evidence.py -o csv -a "add_job_a" -t "sufficient"
+echo $model \
+  | python3 ../src/calc_evidence.py -o csv -a "add_job_a" -t "sufficient" \
+  | tail -n+2  # Strip off the CSV header row
 #+end_src
 
 #+RESULTS: se-add-job-a
-: action,evidence
 : add_job_a,dir_entry_1=JobA | dir_entry_1=DelA | dir_entry_2=JobA | dir_entry_2=JobB | dir_entry_2=DelA | dir_entry_2=DelB
 
 
@@ -283,9 +284,7 @@ in the following src-block.
 
 #+name: se-regex
 #+begin_src shell :var traces=se-add-job-a :results output verbatim raw
-PATTERN="("
-PATTERN+=$(echo $traces | cut -d"," -f2 | tail -n+2 | sed 's/\s//g')
-PATTERN+=")"
+PATTERN="($(echo $traces | cut -d"," -f2 | sed 's/\s//g'))"
 
 echo $PATTERN
 #+end_src
