@@ -46,7 +46,8 @@ def parse_args():
         "-a",
         "--action",
         required=False,
-        help="Name of the action of interest",
+        help="Name of the action of interest. " \
+             "Consider all actions if not specified.",
     )
     parser.add_argument(
         "-t",
@@ -70,7 +71,8 @@ def parse_args():
         nargs="?",
         type=argparse.FileType("r"),
         default=sys.stdin,
-        help="Model specified in NuSMV's input language",
+        help="Model specified in NuSMV's input language. " \
+             "If not specified read from STDIN",
     )
     args = parser.parse_args()
 
