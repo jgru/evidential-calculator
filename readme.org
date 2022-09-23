@@ -30,15 +30,15 @@ For a full reference of the CLI, see the manual page below, or run
 =calc_evidence.py= with =--help=.
 
 #+begin_example
-usage: calc_evidence.py [-h] [-a ACTION] [-t {sufficient,necessary}] [-o {csv,raw}] [-c] [model]
+usage: calc_evidence.py [-h] [-a ACTION] [-t {sufficient,necessary}] [-o {csv,raw}] [model]
 
 positional arguments:
-  model                 Model specified in NuSMV's input language
+  model                 Model specified in NuSMV's input language. If not specified read from STDIN
 
 optional arguments:
   -h, --help            show this help message and exit
   -a ACTION, --action ACTION
-                        Name of the action of interest
+                        Name of the action of interest. Consider all actions if not specified.
   -t {sufficient,necessary}, --etype {sufficient,necessary}
                         Type of evidence to calculate
   -o {csv,raw}, --output-format {csv,raw}
