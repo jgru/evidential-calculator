@@ -133,4 +133,4 @@
   :hook (python-mode . pyvenv-mode))
 
 (setq default-directory "/usr/local/src/evidential-calculator/examples")
-(find-file "/usr/local/src/evidential-calculator/examples/example-lst-1.org")
+(find-file "/usr/local/src/evidential-calculator/examples/lst-1.org")
