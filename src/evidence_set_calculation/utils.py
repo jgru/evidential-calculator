@@ -59,7 +59,7 @@ def evidence_to_formula(
     is_first = True
 
     for e in evidence:
-        pred = trace_connective.join([f"{e} = {v}" for e, v in e.items()])
+        pred = trace_connective.join([f"{e}={v}" for e, v in e.items()])
         if len(e.items()) > 1:
             pred = f"( {pred} )"
 
