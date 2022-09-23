@@ -248,7 +248,6 @@ for s in se[action]:
 : Found sufficient evidence for add_job_a:
 : 	{dir_entry_2: DelB}
 
-
 * Solution Using Our Prototypical CLI-Tool
 :PROPERTIES:
 :header-args: :noweb yes :results output table
