@@ -8,7 +8,6 @@ FROM debian:bullseye-slim
 ENV DEBIAN_FRONTEND=noninteractive
 RUN echo 'APT::Get::Assume-Yes "true";' >> /etc/apt/apt.conf
 
-# Just for the convenience of it
 RUN apt-get update
 
 # Required to build NuSMV
