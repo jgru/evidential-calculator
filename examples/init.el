@@ -68,6 +68,16 @@
 (load-theme 'tango-dark t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Orgmode tweaks
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Follow "Github-flavored links" in ToCs
+(use-package toc-org
+  :straight t
+  :hook
+  (org-mode . toc-org-mode))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Literate Programming
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -132,5 +142,6 @@
 
   :hook (python-mode . pyvenv-mode))
 
+;; Open the literate examples by default
 (setq default-directory "/usr/local/src/evidential-calculator/examples")
 (find-file "/usr/local/src/evidential-calculator/examples/lst-1.org")
