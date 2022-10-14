@@ -2,15 +2,6 @@
 #+PROPERTY: header-args :session ex-lst-2
 
 This example considers a model that houses an unreachable action.
-* Overview :TOC:
-- [[#technical-setup][Technical Setup]]
-- [[#model-specification][Model Specification]]
-  - [[#gcl-specification][GCL Specification]]
-  - [[#smv-specification][SMV Specification]]
-- [[#calculation-of-evidence-sets][Calculation of Evidence Sets]]
-  - [[#action-induced-evidence][Action-induced Evidence]]
-  - [[#sufficient-evidence][Sufficient Evidence]]
-  - [[#necessary-evidence][Necessary Evidence]]
 
 * Technical Setup
 Activate the virtual environment =venv=

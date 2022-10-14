@@ -6,12 +6,6 @@ This directory contains the literate examples accompanying our paper titled
 /"Formally Characterizing (and Proving) Necessary and Sufficient Evidence in
 Forensic Event Reconstruction"/
 
-* Table of Contents :TOC:
-- [[#directory-contents][Directory Contents]]
-- [[#preparations-to-run-the-literate-examples][Preparations to Run the Literate Examples]]
-  - [[#using-docker][Using Docker]]
-  - [[#manual-setup][Manual Setup]]
-
 * Directory Contents
 Within this directory, you find the following =org-mode=-notebooks:
 
