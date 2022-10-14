@@ -6,6 +6,15 @@ calculates the evidence sets of different classes of evidence.
 If you just want to quickly try the tool, you may use the provided
 Dockerfile (see [[id:57261ec4-5032-4efb-b94d-27b2c3435eeb][Usage via Docker]]).
 
+* Table of Contents :TOC:
+- [[#usage][Usage]]
+  - [[#general-usage][General Usage]]
+  - [[#usage-via-docker][Usage via Docker]]
+- [[#installation][Installation]]
+  - [[#dependencies][Dependencies]]
+  - [[#install-module-via-pythons-package-manager-pip][Install Module Via Python's Package Manager =pip=]]
+  - [[#install-requirements-only][Install Requirements Only]]
+
 * Usage
 ** General Usage
 Using the provided tool is straightforward, just supply a model, which
@@ -106,4 +115,3 @@ python3.9 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 #+end_src
-
