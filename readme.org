@@ -2,8 +2,10 @@
 
 # Badges
 #+html: <a href=""><img alt="Research Project" src="https://img.shields.io/badge/-Research%20Project-informational"/></a>
-#+html: <a href="https://www.python.org/"><img alt="Python3.9" src="https://img.shields.io/badge/python-3.9-brightgreen"/></a>
+#+html: <a href="https://www.python.org/"><img alt="Python3.9" src="https://img.shields.io/badge/Python-3.9-brightgreen"/></a>
 #+html: <a href="https://github.com/LouvainVerificationLab/pynusmv"><img alt="PyNuSMV" src="https://img.shields.io/badge/Dependency-PyNuSMV-yellow"/></a>
+#+html: <a href="https://github.com/LouvainVerificationLab/pynusmv"><img height="32" width="32" src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/docker.svg" />
+</a>
 
 This repository contains a prototypical implementation of a tool that
 calculates the evidence sets of different classes of evidence.
