@@ -4,6 +4,16 @@
 This example provides a basic introduction to the GCL notation and our
 evidence calculations.
 
+* Overview :TOC:
+- [[#technical-setup][Technical Setup]]
+- [[#model-specification][Model Specification]]
+  - [[#gcl-specification][GCL Specification]]
+  - [[#smv-specification][SMV Specification]]
+- [[#calculation-of-evidence-sets][Calculation of Evidence Sets]]
+  - [[#action-induced-evidence][Action-induced Evidence]]
+  - [[#sufficient-evidence][Sufficient Evidence]]
+  - [[#necessary-evidence][Necessary Evidence]]
+
 * Technical Setup
 Activate the virtual environment =venv=
 #+begin_src elisp :results silent :var path="../"
@@ -55,7 +65,7 @@ MODULE main
     INIT
         action = unconstrain
     ASSIGN
-        next(a) := 
+        next(a) :=
             case
                 next(action) = a0: TRUE;
                 TRUE: a;
@@ -81,7 +91,7 @@ MODULE main
 ** Action-induced Evidence
 #+begin_src python
 actions = []  # Consider all actions in the model
-_type = sbe.EvidenceType.action_induced 
+_type = sbe.EvidenceType.action_induced
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
@@ -146,5 +156,3 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Evidence of unconstrain |             |
 |-------------------------+-------------|
-
-

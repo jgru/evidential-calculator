@@ -6,11 +6,25 @@ the LTL-specification of sufficient evidence (SE).
 
 First, we briefly describe the scenario, which may be skipped if you
 are well familiar with it or read the accompanying paper. Second, the
-model is specified in NuSMV syntax (see [[id:c3e4be64-3a13-46fa-ba0d-523514eec4f1][Model Specification]]). Third,
-we show how to solve the case using out Python model (see [[id:e4ee2a96-97da-4948-9da1-284dcf20d434][Solution
+model is specified in NuSMV syntax (see [[#model-specification][Model Specification]]). Third,
+we show how to solve the case using out Python model (see [[#solution-using-our-python-module][Solution
 Using Our Python Module]]). Finally, we present how to solve the case
 using the CLI of our tool and a regex that is derived from its output
-(see [[id:c5074f21-dc59-4003-a6eb-f037c7d0f80c][Solution Using Our Prototypical CLI-Tool]]).
+(see [[#solution-using-our-prototypical-cli-tool][Solution Using Our Prototypical CLI-Tool]]).
+
+* Overview :TOC:
+- [[#the-acme-printer-case][The ACME Printer Case]]
+  - [[#literature-references][Literature References]]
+  - [[#description-of-the-scenario][Description of the Scenario]]
+  - [[#the-investigative-question][The Investigative Question]]
+- [[#model-specification][Model Specification]]
+- [[#solution-using-our-python-module][Solution Using Our Python Module]]
+  - [[#setup][Setup]]
+  - [[#calculate-the-set-of-sufficient-evidence][Calculate the Set of Sufficient Evidence]]
+  - [[#answering-the-investigative-question][Answering the Investigative Question]]
+- [[#solution-using-our-prototypical-cli-tool][Solution Using Our Prototypical CLI-Tool]]
+  - [[#calculate-the-set-of-sufficient-evidence-1][Calculate the Set of Sufficient Evidence]]
+  - [[#answering-the-investigative-question-1][Answering the Investigative Question]]
 
 * The ACME Printer Case
 ** Literature References
@@ -246,7 +260,7 @@ for s in se[action]:
 
 #+RESULTS: check-s-in-e-obs-py
 : Found sufficient evidence for add_job_a:
-: 	{dir_entry_2: DelB}
+:       {dir_entry_2: DelB}
 
 * Solution Using Our Prototypical CLI-Tool
 :PROPERTIES:

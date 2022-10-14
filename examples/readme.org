@@ -6,6 +6,12 @@ This directory contains the literate examples accompanying our paper titled
 /"Formally Characterizing (and Proving) Necessary and Sufficient Evidence in
 Forensic Event Reconstruction"/
 
+* Table of Contents :TOC:
+- [[#directory-contents][Directory Contents]]
+- [[#preparations-to-run-the-literate-examples][Preparations to Run the Literate Examples]]
+  - [[#using-docker][Using Docker]]
+  - [[#manual-setup][Manual Setup]]
+
 * Directory Contents
 Within this directory, you find the following =org-mode=-notebooks:
 
@@ -29,14 +35,16 @@ tree
 Each notebook's name references a listing in the paper.
 
 * Preparations to Run the Literate Examples
-Although the literate notebooks are already comprehensive you might want to
-execute the src-blocks yourself.
+Although the literate notebooks are already quite comprehensive, you
+might want to execute the src-blocks yourself and play with the
+examples yourself.
 
 ** Using Docker
 To enable you to just run the code and get results, we provide a
-[[./Dockerfile][Dockerfile]] having Emacs 28.1 (the terminal version =emacs-nox=) with
-all packages and all other necessary dependencies (especially, Python
-3.9.8) installed. It extends the Dockerfile in the parent directory.
+[[./Dockerfile][Dockerfile]]. The container houses Emacs' terminal version (=emacs-nox=
+in version 28.1) with all needed packages and all other necessary
+dependencies (especially, Python 3.9.8). Note that it extends the
+Dockerfile in the parent directory which has to be built first.
 
 To build it run the following commands:
 
@@ -63,8 +71,8 @@ After having started the container, you can simply open the notebooks located in
 one after another.
 
 ** Manual Setup
-If you refrain from using Docker, please consider the following notes for
-running the literate examples.
+If you refrain from using Docker, please consider the following
+instructions to run the literate examples.
 
 *** Dependencies
 If you want to run the code without a container, please ensure that you have the
@@ -91,14 +99,15 @@ First, find the base directory of this file:
 : /tmp/evidential-calculator/
 
 
-Second, create Python virtual environment called =venv= by running the following commands:
+Second, create Python virtual environment called =venv= by running the
+following commands:
 #+begin_src shell :results output verbatim :var BP=basepath
 cd $BP
 python3.9 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 #
-# Eventually, install the evidence_set_calculation-package
+# Possibly, install the evidence_set_calculation-package
 # cd $BP && pip3 install .
 #+end_src
 

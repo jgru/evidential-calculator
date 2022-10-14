@@ -3,6 +3,15 @@
 
 This example considers a model with an action that is guarded by a
 semaphore.
+* Overview :TOC:
+- [[#technical-setup][Technical Setup]]
+- [[#model-specification][Model Specification]]
+  - [[#gcl-specification][GCL Specification]]
+  - [[#smv-specification][SMV Specification]]
+- [[#calculation-of-evidence-sets][Calculation of Evidence Sets]]
+  - [[#action-induced-evidence][Action-induced Evidence]]
+  - [[#sufficient-evidence][Sufficient Evidence]]
+  - [[#necessary-evidence][Necessary Evidence]]
 
 * Technical Setup
 Activate the virtual environment =venv=
@@ -12,7 +21,7 @@ Activate the virtual environment =venv=
 
 Import the =evidental_calculator=-module:
 #+name: prep
-#+begin_src python :results output :var path="../" 
+#+begin_src python :results output :var path="../"
 import sys
 from pathlib import Path
 
@@ -118,7 +127,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 ** Sufficient Evidence
 #+begin_src python
 actions = None  # Consider all actions in the model
-_type = sbe.EvidenceType.sufficient 
+_type = sbe.EvidenceType.sufficient
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions

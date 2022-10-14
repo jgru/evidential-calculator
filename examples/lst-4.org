@@ -4,6 +4,16 @@
 This example illustrates multiple effects of one action, which also
 reverse variable assignments.
 
+* Overview :TOC:
+- [[#technical-setup][Technical Setup]]
+- [[#model-specification][Model Specification]]
+  - [[#gcl-specification][GCL Specification]]
+  - [[#smv-specification][SMV Specification]]
+- [[#calculation-of-evidence-sets][Calculation of Evidence Sets]]
+  - [[#action-induced-evidence][Action-induced Evidence]]
+  - [[#sufficient-evidence][Sufficient Evidence]]
+  - [[#necessary-evidence][Necessary Evidence]]
+
 * Technical Setup
 Activate the virtual environment =venv=
 #+begin_src elisp :results silent :var path="../"
@@ -99,12 +109,12 @@ MODULE main
 
 * Calculation of Evidence Sets
 :PROPERTIES:
-:header-args+: :results output table raw :var model_data=ex-lst-4-smv 
+:header-args+: :results output table raw :var model_data=ex-lst-4-smv
 :END:
 ** Action-induced Evidence
 #+begin_src python
 actions = []  # Consider all actions
-_type = sbe.EvidenceType.action_induced 
+_type = sbe.EvidenceType.action_induced
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
@@ -184,5 +194,3 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+------------------------------------------------------------------------------------------------------------------------------|
 | Evidence of unconstrain | ( a = TRUE \/ b = FALSE ) /\ ( a = TRUE \/ c = FALSE ) /\ ( a = TRUE \/ d = FALSE ) /\ ( b = TRUE \/ c = FALSE \/ d = TRUE ) |
 |-------------------------+------------------------------------------------------------------------------------------------------------------------------|
-
-
