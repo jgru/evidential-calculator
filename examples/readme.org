@@ -1,5 +1,6 @@
 #+title: Literate Examples
 #+language: en
+#+options: toc:nil
 
 This directory contains the literate examples accompanying our paper titled
 

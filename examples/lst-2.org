@@ -1,5 +1,6 @@
 #+title: Literate Calculation of Evidence Sets for Listing 2
-#+PROPERTY: header-args :session ex-lst-2
+#+options: toc:nil
+#+property: header-args :session ex-lst-2
 
 This example considers a model that houses an unreachable action.
 

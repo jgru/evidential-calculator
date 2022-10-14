@@ -1,5 +1,6 @@
 #+title: Literate Calculation of Evidence Sets for Listing 1
-#+PROPERTY: header-args :session ex-lst-1
+#+options: toc:nil
+#+property: header-args :session ex-lst-1
 
 This example provides a basic introduction to the GCL notation and our
 evidence calculations.

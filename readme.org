@@ -1,4 +1,5 @@
 #+title: evidential-calculator
+#+options: toc:nil
 
 # Badges
 #+html: <a href=""><img alt="Research Project" src="https://img.shields.io/badge/-Research%20Project-informational"/></a>

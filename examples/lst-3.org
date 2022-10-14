@@ -1,5 +1,6 @@
 #+title: Literate Calculation of Evidence Sets for Listing 3
-#+PROPERTY: header-args :session ex-lst-3
+#+options: toc:nil
+#+property: header-args :session ex-lst-3
 
 This example considers a model with an action that is guarded by a
 semaphore.
