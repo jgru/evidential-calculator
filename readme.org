@@ -1,5 +1,9 @@
 #+title: evidential-calculator
 
+#+html: <a href="https://www.python.org/"><img alt="Python" src="https://pastebin.com/raw/R6pcfYB1"/></a>
+#+html: <a href="https://github.com/LouvainVerificationLab/pynusmv"><img alt="PyNuSMV" src="https://pastebin.com/raw/ZAgSRNf9"/></a>
+
+
 This repository contains a prototypical implementation of a tool that
 calculates the evidence sets of different classes of evidence.
 
