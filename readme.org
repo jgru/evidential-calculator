@@ -53,9 +53,6 @@ optional arguments:
                         Output format of the calculated sets
 #+end_example
 ** Usage via Docker
-:PROPERTIES:
-:ID:       57261ec4-5032-4efb-b94d-27b2c3435eeb
-:END:
 For quick tryouts, we provide a Dockerfile. Build it by running the following
 command:
 
