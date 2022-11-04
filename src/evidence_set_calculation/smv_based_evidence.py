@@ -4,8 +4,9 @@ import copy
 import sys
 from collections.abc import Callable
 from enum import Enum
-from functools import partial
+from functools import partial, reduce
 from itertools import chain, combinations, product
+from operator import iconcat
 from typing import OrderedDict, Union
 
 import pynusmv as pn
@@ -456,8 +457,45 @@ class NuSMVEvidenceProcessor:
         return valuation.values
 
     @staticmethod
-    def quantify_expressiveness():
-        pass
+    def quantify_expressiveness(actions_to_evidence, ):
+        """Calculates expressiveness by using the following formula
+
+        E(p) = \frac{\big\vert\{\sigma \in \Sigma \mid \exists \rho \in
+               SE(\sigma,M):\, \rho \sqsubseteq p\}\big\vert}{|\Sigma|}
+
+        Note: This requires a _complete_ actions_to_evidence-dict that
+        contains all actions in the model and the respective traces.
+        """
+
+        # Retrieve all unique facets
+        facets = set(
+            [
+                frozenset(elem.items())
+                for elem in reduce(iconcat, actions_to_evidence.values())
+            ]
+        )
+        # Actions to consider
+        actions = actions_to_evidence.keys()
+
+        _expr = {}  # resulting expressiveness per facet
+
+        # Calculate expressiveness of each facet:
+        return {
+            p: sum(
+                map(
+                    lambda k: any(
+                        [
+                            k
+                            for rho in actions_to_evidence[k]
+                            if all(e in p for e in rho.items())
+                        ]
+                    ),
+                    actions,
+                )
+            )
+            / len(actions)
+            for p in facets
+        }
 
     @staticmethod
     def powerset(_set):
