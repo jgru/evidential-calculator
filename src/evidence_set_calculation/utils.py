@@ -7,6 +7,7 @@ import csv
 import io
 from enum import Enum
 from typing import Union
+
 from .smv_based_evidence import EvidenceType
 
 
@@ -45,6 +46,16 @@ ALT_AND = r" /\ "
 ALT_OR = r" \/ "
 
 
+def evidence_elem_to_formula(
+    pe: tuple[str, str], _type: EvidenceType, use_alt_syms: bool = False
+):
+    _and = AND if not use_alt_syms else ALT_AND
+    _or = OR if not use_alt_syms else ALT_OR
+
+    trace_connective = _or if _type == EvidenceType.necessary else _and
+    return trace_connective.join([f"{e}={v}" for e, v in pe.items()])
+
+
 def evidence_to_formula(
     evidence: list[tuple[str, str]], _type: EvidenceType, use_alt_syms: bool = False
 ):
@@ -59,7 +70,7 @@ def evidence_to_formula(
     is_first = True
 
     for e in evidence:
-        pred = trace_connective.join([f"{e}={v}" for e, v in e.items()])
+        pred = evidence_elem_to_formula(e, _type, use_alt_syms)
         if len(e.items()) > 1:
             pred = f"( {pred} )"
 
