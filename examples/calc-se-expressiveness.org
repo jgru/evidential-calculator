@@ -128,7 +128,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 
 ** Evidence Expressiveness
 
-#+begin_src python :results output table raw
+#+begin_src python :results output table raw :exports both
 from functools import reduce
 from operator import iconcat
 
