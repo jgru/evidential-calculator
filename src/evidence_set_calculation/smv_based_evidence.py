@@ -465,7 +465,7 @@ class NuSMVEvidenceProcessor:
 
         E.g., powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)
 
-        Inspired from
+        Inspired by
         http://jim-holmstroem.github.io/python/itertools/2014/09/28/powerset-powerdict.html
 
         """
