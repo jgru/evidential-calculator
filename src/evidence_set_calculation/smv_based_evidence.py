@@ -456,6 +456,10 @@ class NuSMVEvidenceProcessor:
         return valuation.values
 
     @staticmethod
+    def quantify_expressiveness():
+        pass
+
+    @staticmethod
     def powerset(_set):
         """Constructs a powerset
 
