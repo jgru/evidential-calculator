@@ -73,7 +73,7 @@
 
 ;; Follow "Github-flavored links" in ToCs
 (use-package toc-org
-  :straight t
+  :ensure t
   :hook
   (org-mode . toc-org-mode))
 
