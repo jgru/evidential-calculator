@@ -29,6 +29,7 @@ print("Successfully imported evidence_set_calculation-module")
 #+RESULTS: prep
 : Successfully imported evidence_set_calculation-module
 
+
 * Model Specification
 ** GCL Specification
 #+name: ex-lst-1-gcl
@@ -36,7 +37,7 @@ print("Successfully imported evidence_set_calculation-module")
 variables {a, b}
 init {a=0, b=0}
 actions a0: a=0 -> a:=1;
-        a1: b=0 -> b:=1;
+        b0: b=0 -> b:=1;
 #+end_example
 ** SMV Specification
 The GCL program given in listing [[ex-lst-1-gcl]] can be transformed into the
@@ -46,7 +47,7 @@ below-mentioned SMV-model:
 #+begin_example
 MODULE main
     VAR
-        action: {a0, a1, unconstrain};
+        action: {a0, b0, unconstrain};
         a: boolean;
         b: boolean;
     INIT
@@ -63,13 +64,13 @@ MODULE main
             esac;
         next(b) :=
             case
-                next(action) = a1: TRUE;
+                next(action) = b0: TRUE;
                 TRUE: b;
             esac;
     TRANS
         next(action) = a0 -> a = FALSE
     TRANS
-        next(action) = a1 -> b = FALSE
+        next(action) = b0 -> b = FALSE
     TRANS
         next(action) = unconstrain -> TRUE
 #+end_example
@@ -97,7 +98,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Evidence of a0          | a = TRUE    |
 |-------------------------+-------------|
-| Evidence of a1          | b = TRUE    |
+| Evidence of b0          | b = TRUE    |
 |-------------------------+-------------|
 | Evidence of unconstrain |             |
 |-------------------------+-------------|
@@ -120,7 +121,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Evidence of a0          | a = TRUE    |
 |-------------------------+-------------|
-| Evidence of a1          | b = TRUE    |
+| Evidence of b0          | b = TRUE    |
 |-------------------------+-------------|
 | Evidence of unconstrain |             |
 |-------------------------+-------------|
@@ -143,7 +144,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Evidence of a0          | a = TRUE    |
 |-------------------------+-------------|
-| Evidence of a1          | b = TRUE    |
+| Evidence of b0          | b = TRUE    |
 |-------------------------+-------------|
 | Evidence of unconstrain |             |
 |-------------------------+-------------|
