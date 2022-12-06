@@ -16,7 +16,7 @@ using the CLI of our tool and a regex that is derived from its output
 ** Literature References
 In 2004, Gladyshev & Patel presented a fictious example case
 concerning /ACME Manufacturing/ that was later picked up by James et
-al. (2009) and Soltani & Hosseini-Seno to confront their methods with
+al. (2009) and Soltani & Hosseini-Seno (2019) to confront their methods with
 a case study and put it to life.
 
 ** Description of the Scenario
