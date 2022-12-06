@@ -10,7 +10,7 @@ Forensic Event Reconstruction"/
 * Directory Contents
 Within this directory, you find the following =org-mode=-notebooks:
 
-#+begin_src shell :results output verbatim
+#+begin_src shell :results output verbatim :exports both
 tree
 #+end_src
 
@@ -28,6 +28,7 @@ tree
 #+end_example
 
 Each notebook's name references a listing in the paper.
+The case study can be found in [[file:acme.org][acme.org]].
 
 * Preparations to Run the Literate Examples
 Although the literate notebooks are already quite comprehensive, you
