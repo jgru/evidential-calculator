@@ -1,4 +1,4 @@
-#+title: Literate Solution of Gladyshev's /ACME Printer Case/
+#+title: Literate Solution of Gladyshev's /ACME Manufacturing Case/
 
 In this notebook, we demonstrate how to solve Gladyshev's well-known
 /ACME Printer Case/ using our prototypical implementation that employs
@@ -12,7 +12,7 @@ Using Our Python Module]]). Finally, we present how to solve the case
 using the CLI of our tool and a regex that is derived from its output
 (see [[#solution-using-our-prototypical-cli-tool][Solution Using Our Prototypical CLI-Tool]]).
 
-* The ACME Printer Case
+* The ACME Manufacturing Case
 ** Literature References
 In 2004, Gladyshev & Patel presented a fictious example case
 concerning /ACME Manufacturing/ that was later picked up by James et
