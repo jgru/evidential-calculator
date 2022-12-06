@@ -207,7 +207,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 ** Answering the Investigative Question
 
 Since we operated on the NuSMV-model presented above, the observed
-evidence has be translated to the following form...
+evidence has be translated from the following form...
 
 #+name: e-obs
 #+begin_example
@@ -215,7 +215,7 @@ dir_entry_1=DelB
 dir_entry_2=DelB
 #+end_example
 
-...and read as a list of dicts.
+...to a list of dicts.
 
 #+begin_src python :var e_obs_raw=e-obs :results output verbatim
 entries = [l.strip() for l in e_obs_raw.split("\n") if l]
