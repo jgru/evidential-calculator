@@ -92,14 +92,14 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Desc                    | Assignments |
 |-------------------------+-------------|
-| Evidence of a0          | b=TRUE      |
+| Evidence of a0          | b = TRUE    |
 |-------------------------+-------------|
 | Evidence of a1          |             |
 |-------------------------+-------------|
 | Evidence of unconstrain |             |
 |-------------------------+-------------|
 
-
+/Note that the AE-formula specified in LTL is not equivalent to Dewald's characteristic evidence, which would yield an empty set here (CE(a0,A) = {})./
 
 ** Sufficient Evidence
 #+begin_src python
@@ -118,7 +118,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 |-------------------------+-------------|
 | Desc                    | Assignments |
 |-------------------------+-------------|
-| Evidence of a0          | b=TRUE      |
+| Evidence of a0          | b = TRUE    |
 |-------------------------+-------------|
 | Evidence of a1          |             |
 |-------------------------+-------------|
@@ -139,17 +139,17 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 #+end_src
 
 #+RESULTS:
-|-------------------------+-------------------------------------------|
-| Desc                    | Assignments                               |
-|-------------------------+-------------------------------------------|
-| Evidence of a0          | a=FALSE and b=TRUE                        |
-|-------------------------+-------------------------------------------|
-| Evidence of a1          | a=TRUE and a=FALSE and b=TRUE and b=FALSE |
-|-------------------------+-------------------------------------------|
-| Evidence of unconstrain | a=FALSE                                   |
-|-------------------------+-------------------------------------------|
+|-------------------------+---------------------------------------------------|
+| Desc                    | Assignments                                       |
+|-------------------------+---------------------------------------------------|
+| Evidence of a0          | a = FALSE and b = TRUE                            |
+|-------------------------+---------------------------------------------------|
+| Evidence of a1          | a = TRUE and a = FALSE and b = TRUE and b = FALSE |
+|-------------------------+---------------------------------------------------|
+| Evidence of unconstrain | a = FALSE                                         |
+|-------------------------+---------------------------------------------------|
 
-Given this inconstent necessary evidence for =a1=, which has to be
+Given this inconistent necessary evidence for =a1=, which has to be
 read as
 
 =a=TRUE /\ a=FALSE /\ b=TRUE /\ b=FALSE=
