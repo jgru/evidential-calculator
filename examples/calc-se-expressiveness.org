@@ -131,53 +131,57 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 #+begin_src python :results output table raw :exports both
 from functools import reduce
 from operator import iconcat
+import copy
 
 actions = []
 _type = sbe.EvidenceType.sufficient
+ignore = ["unconstrain"]
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
     actions_to_evidence = ep.calc_set(_type, actions)
 
     # Retrieve all actions
-    actions = actions_to_evidence.keys()
+    actions = [a for a in actions_to_evidence.keys() if a not in ignore]
+    actions_to_evidence_copy = copy.deepcopy(actions_to_evidence)
 
     # Retrieve all facets
     facets = set(
         [
+
             frozenset(elem.items())
-            for elem in reduce(iconcat, actions_to_evidence.values())
+            for elem in reduce(iconcat, actions_to_evidence_copy.values())
         ]
     )
-
-    print("| Facet | Expressiveness |")
 
     # Determine expressiveness of each facet by calculating
     # E(p) =
     # \frac{\big\vert\{\sigma \in \Sigma \mid \exists \rho \in
     # SE(\sigma,M):\, \rho \sqsubseteq p\}\big\vert}{|\Sigma|}
 
+    print("| Facet | Count | Exrp")
     for p in facets:
-        e_p = sum(
+        e_p_cnt = sum(
             map(
                 lambda k: any(
                     [
-                        k
+                        1
                         for rho in actions_to_evidence[k]
-                        if all(e in p for e in rho.items())
+                        if rho.items() == p
                     ]
                 ),
                 actions,
             )
-        ) / len(actions)
+        )
+        e_p_ratio = e_p_cnt / len(actions)
 
-        print(f"|{utils.evidence_elem_to_formula(dict(p), _type)}| {e_p}|")
+        print(f"|{utils.evidence_elem_to_formula(dict(p), _type)}| {e_p_cnt}| {e_p_ratio}")
 #+end_src
 
 #+RESULTS:
-| Facet            | Expressiveness |
-| a=TRUE           |            0.2 |
-| c=TRUE           |            0.6 |
-| b=TRUE           |            0.4 |
-| d=TRUE           |            0.6 |
-| b=FALSE & c=TRUE |            0.8 |
+| Facet            | Count | Exrp |
+| b=TRUE           |     2 |  0.5 |
+| c=TRUE           |     3 | 0.75 |
+| a=TRUE           |     1 | 0.25 |
+| b=FALSE & c=TRUE |     1 | 0.25 |
+| d=TRUE           |     3 | 0.75 |
