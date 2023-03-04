@@ -1,4 +1,4 @@
-#+options: toc:nil
+ #+options: toc:nil
 #+property: header-args :session ex-lst-4
 
 * Technical Setup
@@ -106,6 +106,7 @@ _type = sbe.EvidenceType.sufficient
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
     es = ep.calc_set(_type, actions)
+
     # Output evidence sets as table
     utils.output_evidence_set(es, _type, "org")
 #print(es)
@@ -128,29 +129,59 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 
 ** Evidence Expressiveness
 
-#+begin_src python :results output table raw :exports both
+#+begin_src python :results output verbatim :exports both
 from functools import reduce
 from operator import iconcat
 import copy
 
+from pynusmv.model import Not, Trueexp, Falseexp
+
 actions = []
-_type = sbe.EvidenceType.sufficient
-ignore = ["unconstrain"]
+ignore = ["unconstrain", "not unconstrain"]
+
+def negate(t: str):
+    if t == Trueexp():
+        return Falseexp()
+    elif t == Falseexp():
+        return Trueexp()
+    else:
+        raise ValueError(
+            f"Cannot handle {t}"
+            "Only [pynusmv.model.Trueexp, pynusmv.model.Falseexp] can be handled"
+        )
+
+def negate_trace_dict(d):
+    return {k:negate(v) for (k,v) in d.items()}
 
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
-    actions_to_evidence = ep.calc_set(_type, actions)
+    actions_to_se = ep.calc_set(sbe.EvidenceType.sufficient, actions)
+    actions_to_ne = ep.calc_set(sbe.EvidenceType.necessary, actions)
 
-    # Retrieve all actions
-    actions = [a for a in actions_to_evidence.keys() if a not in ignore]
-    actions_to_evidence_copy = copy.deepcopy(actions_to_evidence)
+    actions_to_xe = {
+        f"not {a}":
+        [
+            negate_trace_dict(ee) for ee in e
+        ]
+        for (a,e) in actions_to_ne.items()
+    }
+
+    # Retrieve all actions -- supports-hypotheses
+    actions = [a for a in actions_to_se.keys() if a not in ignore]
+
+    # Include negations of actions -- refutes-hypotheses
+    actions.extend([f"not {a}" for a in actions_to_ne.keys() if a not in ignore])
+
+    # Create a deep copies to work non destructively when extracting facets
+    actions_to_facets = {k:v for (k,v) in (actions_to_se | actions_to_xe).items() if k not in ignore}
+    actions_to_facets_copy = copy.deepcopy(actions_to_facets)
 
     # Retrieve all facets
     facets = set(
         [
 
             frozenset(elem.items())
-            for elem in reduce(iconcat, actions_to_evidence_copy.values())
+            for elem in reduce(iconcat, actions_to_facets_copy.values())
         ]
     )
 
@@ -159,14 +190,14 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # \frac{\big\vert\{\sigma \in \Sigma \mid \exists \rho \in
     # SE(\sigma,M):\, \rho \sqsubseteq p\}\big\vert}{|\Sigma|}
 
-    print("| Facet | Count | Exrp")
+    print("| Facet | Count | Expr")
     for p in facets:
         e_p_cnt = sum(
             map(
                 lambda k: any(
                     [
-                        1
-                        for rho in actions_to_evidence[k]
+                        k
+                        for rho in actions_to_facets.get(k,[])
                         if rho.items() == p
                     ]
                 ),
@@ -174,14 +205,18 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
             )
         )
         e_p_ratio = e_p_cnt / len(actions)
-
-        print(f"|{utils.evidence_elem_to_formula(dict(p), _type)}| {e_p_cnt}| {e_p_ratio}")
+        print(f"| {utils.evidence_elem_to_formula(dict(p), _type)} | {e_p_cnt}| {e_p_ratio}")
 #+end_src
 
 #+RESULTS:
-| Facet            | Count | Exrp |
-| b=TRUE           |     2 |  0.5 |
-| c=TRUE           |     3 | 0.75 |
-| a=TRUE           |     1 | 0.25 |
-| b=FALSE & c=TRUE |     1 | 0.25 |
-| d=TRUE           |     3 | 0.75 |
+| Facet                      | Count |  Exrp |
+| b=TRUE                     |     2 |  0.25 |
+| c=FALSE & d=FALSE          |     1 | 0.125 |
+| c=TRUE & b=FALSE & d=FALSE |     1 | 0.125 |
+| c=TRUE & b=FALSE           |     1 | 0.125 |
+| a=FALSE                    |     4 |   0.5 |
+| b=FALSE & d=FALSE          |     3 | 0.375 |
+| a=TRUE                     |     1 | 0.125 |
+| c=FALSE                    |     1 | 0.125 |
+| c=TRUE                     |     3 | 0.375 |
+| d=TRUE                     |     3 | 0.375 |
