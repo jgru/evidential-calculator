@@ -205,7 +205,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
             )
         )
         e_p_ratio = e_p_cnt / len(actions)
-        print(f"| {utils.evidence_elem_to_formula(dict(p), _type)} | {e_p_cnt}| {e_p_ratio}")
+        print(f"| {utils.evidence_elem_to_formula(dict(p), sbe.EvidenceType.sufficient)} | {e_p_cnt}| {e_p_ratio}")
 #+end_src
 
 #+RESULTS:
