@@ -129,6 +129,11 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
 
 ** Evidence Expressiveness
 
+The following snippet calculates specific expressiveness ratios for facets of the example program 4;
+
+Only facets are considered that contribute to the assessment of at
+least one hypothesis, thus the expressiveness ratios of facets \(\widetilde{F} = \{ f \in F : \vert \mathcal{X}_{f}\vert \geq 1 \}\) w.r.t. the set of hypotheses \(H = \{\mathtt{a0}, \mathtt{a1}, \mathtt{a2}, \mathtt{a3} \}\) are listed.
+
 #+begin_src python :results output verbatim :exports both
 from functools import reduce
 from operator import iconcat
@@ -153,13 +158,14 @@ def negate(t: str):
 def negate_trace_dict(d):
     return {k:negate(v) for (k,v) in d.items()}
 
+
 with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Calc sufficient evidence for all actions
     actions_to_se = ep.calc_set(sbe.EvidenceType.sufficient, actions)
     actions_to_ne = ep.calc_set(sbe.EvidenceType.necessary, actions)
 
     actions_to_xe = {
-        f"not {a}":
+        a:
         [
             negate_trace_dict(ee) for ee in e
         ]
@@ -169,17 +175,21 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # Retrieve all actions -- supports-hypotheses
     actions = [a for a in actions_to_se.keys() if a not in ignore]
 
-    # Include negations of actions -- refutes-hypotheses
-    actions.extend([f"not {a}" for a in actions_to_ne.keys() if a not in ignore])
+    
+    actions_to_facets = copy.deepcopy({a:e for (a,e) in actions_to_se.items() if a not in ignore})
 
-    # Create a deep copies to work non destructively when extracting facets
-    actions_to_facets = {k:v for (k,v) in (actions_to_se | actions_to_xe).items() if k not in ignore}
+    for k, v in actions_to_xe.items():
+        if k in actions_to_facets.keys():
+            actions_to_facets[k].extend(v)
+        elif k not in ignore:
+            actions_to_facets[k] = v
+    
+    # Create a deep copies to work non destructively when extracting facets        
     actions_to_facets_copy = copy.deepcopy(actions_to_facets)
-
+ 
     # Retrieve all facets
     facets = set(
         [
-
             frozenset(elem.items())
             for elem in reduce(iconcat, actions_to_facets_copy.values())
         ]
@@ -189,7 +199,8 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
     # E(p) =
     # \frac{\big\vert\{\sigma \in \Sigma \mid \exists \rho \in
     # SE(\sigma,M):\, \rho \sqsubseteq p\}\big\vert}{|\Sigma|}
-
+    
+    expressiveness_ratio = {}
     print("| Facet | Count | Expr")
     for p in facets:
         e_p_cnt = sum(
@@ -201,22 +212,24 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
                         if rho.items() == p
                     ]
                 ),
-                actions,
+                actions_to_facets.keys(),
             )
         )
-        e_p_ratio = e_p_cnt / len(actions)
+        e_p_ratio = e_p_cnt / len(actions_to_facets.keys())
+
         print(f"| {utils.evidence_elem_to_formula(dict(p), sbe.EvidenceType.sufficient)} | {e_p_cnt}| {e_p_ratio}")
 #+end_src
 
 #+RESULTS:
-| Facet                      | Count |  Exrp |
-| b=TRUE                     |     2 |  0.25 |
-| c=FALSE & d=FALSE          |     1 | 0.125 |
-| c=TRUE & b=FALSE & d=FALSE |     1 | 0.125 |
-| c=TRUE & b=FALSE           |     1 | 0.125 |
-| a=FALSE                    |     4 |   0.5 |
-| b=FALSE & d=FALSE          |     3 | 0.375 |
-| a=TRUE                     |     1 | 0.125 |
-| c=FALSE                    |     1 | 0.125 |
-| c=TRUE                     |     3 | 0.375 |
-| d=TRUE                     |     3 | 0.375 |
+| Facet                          | Count | Expr |
+| c=TRUE and b=FALSE and d=FALSE |     1 | 0.25 |
+| c=TRUE and b=FALSE             |     1 | 0.25 |
+| c=TRUE                         |     3 | 0.75 |
+| a=FALSE                        |     4 |  1.0 |
+| b=FALSE and d=FALSE            |     3 | 0.75 |
+| a=TRUE                         |     1 | 0.25 |
+| d=TRUE                         |     3 | 0.75 |
+| b=TRUE                         |     2 |  0.5 |
+| c=FALSE                        |     1 | 0.25 |
+| d=FALSE and c=FALSE            |     1 | 0.25 |
+
