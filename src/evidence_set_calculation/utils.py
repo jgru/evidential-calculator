@@ -59,7 +59,7 @@ def evidence_elem_to_formula(
 def evidence_to_formula(
     evidence: list[tuple[str, str]], _type: EvidenceType, use_alt_syms: bool = False
 ):
-    # Determin style of boolean connectives
+    # Determine style of boolean connectives
     _and = AND if not use_alt_syms else ALT_AND
     _or = OR if not use_alt_syms else ALT_OR
 
