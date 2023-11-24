@@ -195,11 +195,7 @@ with sbe.NuSMVEvidenceProcessor(model_data) as ep:
         ]
     )
 
-    # Determine expressiveness of each facet by calculating
-    # E(p) =
-    # \frac{\big\vert\{\sigma \in \Sigma \mid \exists \rho \in
-    # SE(\sigma,M):\, \rho \sqsubseteq p\}\big\vert}{|\Sigma|}
-    
+    # Determine expressiveness of each facet
     expressiveness_ratio = {}
     print("| Facet | Count | Expr")
     for p in facets:
