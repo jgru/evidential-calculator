@@ -42,8 +42,8 @@ def output_evidence_set(
 AND = r" & "
 OR = r" | "
 
-ALT_AND = r" /\ "
-ALT_OR = r" \/ "
+ALT_AND = " and " # r" /\ "
+ALT_OR = " or " # r" \/ "
 
 
 def evidence_elem_to_formula(
@@ -64,7 +64,6 @@ def evidence_to_formula(
     _or = OR if not use_alt_syms else ALT_OR
 
     elem_connective = _and if _type == EvidenceType.necessary else _or
-    trace_connective = _or if _type == EvidenceType.necessary else _and
 
     formula = ""
     is_first = True
